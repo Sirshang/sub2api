@@ -14,7 +14,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-const defaultUserVisibleMonitorName = "allgpt-monitor"
+const defaultUserVisibleMonitorName = "codelife-eu-monitor"
 
 type channelMonitorUserService interface {
 	ListUserView(ctx context.Context) ([]*service.UserMonitorView, error)

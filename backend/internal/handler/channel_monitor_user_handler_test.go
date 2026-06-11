@@ -49,8 +49,8 @@ func TestChannelMonitorUserHandlerListFiltersToDefaultVisibleMonitor(t *testing.
 
 	monitorSvc := &fakeChannelMonitorUserService{
 		views: []*service.UserMonitorView{
-			{ID: 1, Name: "allgpt-monitor", GroupName: "codelife-openai"},
-			{ID: 2, Name: "codelife-eu-monitor", GroupName: "codelife-openai"},
+			{ID: 1, Name: "codelife-eu-monitor", GroupName: "codelife-openai"},
+			{ID: 2, Name: "allgpt-monitor", GroupName: "codelife-openai"},
 			{ID: 3, Name: "hidden", GroupName: "other-group"},
 		},
 	}
@@ -80,7 +80,7 @@ func TestChannelMonitorUserHandlerListFiltersToDefaultVisibleMonitor(t *testing.
 	require.Equal(t, 0, resp.Code)
 	require.Len(t, resp.Data.Items, 1)
 	require.Equal(t, "codelife-openai", resp.Data.Items[0].GroupName)
-	require.Equal(t, "allgpt-monitor", resp.Data.Items[0].Name)
+	require.Equal(t, "codelife-eu-monitor", resp.Data.Items[0].Name)
 }
 
 func TestChannelMonitorUserHandlerListAdminBypassesGroupFilter(t *testing.T) {
@@ -88,8 +88,8 @@ func TestChannelMonitorUserHandlerListAdminBypassesGroupFilter(t *testing.T) {
 
 	monitorSvc := &fakeChannelMonitorUserService{
 		views: []*service.UserMonitorView{
-			{ID: 1, Name: "allgpt-monitor", GroupName: "codelife-openai"},
-			{ID: 2, Name: "codelife-eu-monitor", GroupName: "codelife-openai"},
+			{ID: 1, Name: "codelife-eu-monitor", GroupName: "codelife-openai"},
+			{ID: 2, Name: "allgpt-monitor", GroupName: "codelife-openai"},
 		},
 	}
 	groupSvc := &fakeChannelMonitorGroupAccessService{
@@ -123,7 +123,7 @@ func TestChannelMonitorUserHandlerGetStatusReturns404ForHiddenMonitorName(t *tes
 	monitorSvc := &fakeChannelMonitorUserService{
 		detail: &service.UserMonitorDetail{
 			ID:        9,
-			Name:      "codelife-eu-monitor",
+			Name:      "allgpt-monitor",
 			GroupName: "codelife-openai",
 		},
 	}
