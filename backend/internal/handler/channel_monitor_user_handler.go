@@ -14,6 +14,8 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+const defaultUserVisibleMonitorName = "allgpt-monitor"
+
 type channelMonitorUserService interface {
 	ListUserView(ctx context.Context) ([]*service.UserMonitorView, error)
 	GetUserDetail(ctx context.Context, id int64) (*service.UserMonitorDetail, error)
@@ -96,6 +98,10 @@ func canViewMonitorGroup(groupName string, allowed map[string]struct{}) bool {
 	return ok
 }
 
+func canViewMonitorName(name string) bool {
+	return strings.EqualFold(strings.TrimSpace(name), defaultUserVisibleMonitorName)
+}
+
 func filterUserMonitorViewsByGroup(
 	views []*service.UserMonitorView,
 	allowed map[string]struct{},
@@ -105,7 +111,7 @@ func filterUserMonitorViewsByGroup(
 	}
 	out := make([]*service.UserMonitorView, 0, len(views))
 	for _, view := range views {
-		if view == nil || !canViewMonitorGroup(view.GroupName, allowed) {
+		if view == nil || !canViewMonitorGroup(view.GroupName, allowed) || !canViewMonitorName(view.Name) {
 			continue
 		}
 		out = append(out, view)
@@ -259,7 +265,7 @@ func (h *ChannelMonitorUserHandler) GetStatus(c *gin.Context) {
 		if !ok {
 			return
 		}
-		if !canViewMonitorGroup(detail.GroupName, allowed) {
+		if !canViewMonitorGroup(detail.GroupName, allowed) || !canViewMonitorName(detail.Name) {
 			response.ErrorFrom(c, service.ErrChannelMonitorNotFound)
 			return
 		}

@@ -44,17 +44,18 @@ func (f *fakeChannelMonitorGroupAccessService) GetAvailableGroups(context.Contex
 	return f.groups, f.err
 }
 
-func TestChannelMonitorUserHandlerListFiltersByAllowedGroup(t *testing.T) {
+func TestChannelMonitorUserHandlerListFiltersToDefaultVisibleMonitor(t *testing.T) {
 	gin.SetMode(gin.TestMode)
 
 	monitorSvc := &fakeChannelMonitorUserService{
 		views: []*service.UserMonitorView{
-			{ID: 1, Name: "visible", GroupName: "allgpt-monitor"},
-			{ID: 2, Name: "hidden", GroupName: "other-group"},
+			{ID: 1, Name: "allgpt-monitor", GroupName: "codelife-openai"},
+			{ID: 2, Name: "codelife-eu-monitor", GroupName: "codelife-openai"},
+			{ID: 3, Name: "hidden", GroupName: "other-group"},
 		},
 	}
 	groupSvc := &fakeChannelMonitorGroupAccessService{
-		groups: []service.Group{{Name: "allgpt-monitor"}},
+		groups: []service.Group{{Name: "codelife-openai"}},
 	}
 	h := NewChannelMonitorUserHandler(monitorSvc, groupSvc, nil)
 
@@ -78,8 +79,8 @@ func TestChannelMonitorUserHandlerListFiltersByAllowedGroup(t *testing.T) {
 	require.NoError(t, json.Unmarshal(w.Body.Bytes(), &resp))
 	require.Equal(t, 0, resp.Code)
 	require.Len(t, resp.Data.Items, 1)
-	require.Equal(t, "allgpt-monitor", resp.Data.Items[0].GroupName)
-	require.Equal(t, "visible", resp.Data.Items[0].Name)
+	require.Equal(t, "codelife-openai", resp.Data.Items[0].GroupName)
+	require.Equal(t, "allgpt-monitor", resp.Data.Items[0].Name)
 }
 
 func TestChannelMonitorUserHandlerListAdminBypassesGroupFilter(t *testing.T) {
@@ -87,12 +88,12 @@ func TestChannelMonitorUserHandlerListAdminBypassesGroupFilter(t *testing.T) {
 
 	monitorSvc := &fakeChannelMonitorUserService{
 		views: []*service.UserMonitorView{
-			{ID: 1, Name: "m1", GroupName: "allgpt-monitor"},
-			{ID: 2, Name: "m2", GroupName: "other-group"},
+			{ID: 1, Name: "allgpt-monitor", GroupName: "codelife-openai"},
+			{ID: 2, Name: "codelife-eu-monitor", GroupName: "codelife-openai"},
 		},
 	}
 	groupSvc := &fakeChannelMonitorGroupAccessService{
-		groups: []service.Group{{Name: "allgpt-monitor"}},
+		groups: []service.Group{{Name: "codelife-openai"}},
 	}
 	h := NewChannelMonitorUserHandler(monitorSvc, groupSvc, nil)
 
@@ -116,18 +117,18 @@ func TestChannelMonitorUserHandlerListAdminBypassesGroupFilter(t *testing.T) {
 	require.Len(t, resp.Data.Items, 2)
 }
 
-func TestChannelMonitorUserHandlerGetStatusReturns404ForHiddenGroup(t *testing.T) {
+func TestChannelMonitorUserHandlerGetStatusReturns404ForHiddenMonitorName(t *testing.T) {
 	gin.SetMode(gin.TestMode)
 
 	monitorSvc := &fakeChannelMonitorUserService{
 		detail: &service.UserMonitorDetail{
 			ID:        9,
-			Name:      "hidden",
-			GroupName: "other-group",
+			Name:      "codelife-eu-monitor",
+			GroupName: "codelife-openai",
 		},
 	}
 	groupSvc := &fakeChannelMonitorGroupAccessService{
-		groups: []service.Group{{Name: "allgpt-monitor"}},
+		groups: []service.Group{{Name: "codelife-openai"}},
 	}
 	h := NewChannelMonitorUserHandler(monitorSvc, groupSvc, nil)
 
