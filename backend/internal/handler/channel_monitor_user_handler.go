@@ -1,30 +1,45 @@
 package handler
 
 import (
+	"context"
+	"strings"
 	"time"
 
 	"github.com/Wei-Shaw/sub2api/internal/handler/admin"
 	"github.com/Wei-Shaw/sub2api/internal/handler/dto"
 	"github.com/Wei-Shaw/sub2api/internal/pkg/response"
+	"github.com/Wei-Shaw/sub2api/internal/server/middleware"
 	"github.com/Wei-Shaw/sub2api/internal/service"
 
 	"github.com/gin-gonic/gin"
 )
 
+type channelMonitorUserService interface {
+	ListUserView(ctx context.Context) ([]*service.UserMonitorView, error)
+	GetUserDetail(ctx context.Context, id int64) (*service.UserMonitorDetail, error)
+}
+
+type channelMonitorGroupAccessService interface {
+	GetAvailableGroups(ctx context.Context, userID int64) ([]service.Group, error)
+}
+
 // ChannelMonitorUserHandler 渠道监控用户只读 handler。
 type ChannelMonitorUserHandler struct {
-	monitorService *service.ChannelMonitorService
+	monitorService channelMonitorUserService
+	groupService   channelMonitorGroupAccessService
 	settingService *service.SettingService
 }
 
 // NewChannelMonitorUserHandler 创建 handler。
 // settingService 用于每次请求前读取功能开关；关闭时 List/GetStatus 直接返回空/404。
 func NewChannelMonitorUserHandler(
-	monitorService *service.ChannelMonitorService,
+	monitorService channelMonitorUserService,
+	groupService channelMonitorGroupAccessService,
 	settingService *service.SettingService,
 ) *ChannelMonitorUserHandler {
 	return &ChannelMonitorUserHandler{
 		monitorService: monitorService,
+		groupService:   groupService,
 		settingService: settingService,
 	}
 }
@@ -36,6 +51,66 @@ func (h *ChannelMonitorUserHandler) featureEnabled(c *gin.Context) bool {
 		return true
 	}
 	return h.settingService.GetChannelMonitorRuntime(c.Request.Context()).Enabled
+}
+
+func (h *ChannelMonitorUserHandler) isAdmin(c *gin.Context) bool {
+	role, ok := middleware.GetUserRoleFromContext(c)
+	return ok && role == service.RoleAdmin
+}
+
+func (h *ChannelMonitorUserHandler) visibleGroupNames(c *gin.Context) (map[string]struct{}, bool) {
+	subject, ok := middleware.GetAuthSubjectFromContext(c)
+	if !ok {
+		response.Unauthorized(c, "User not authenticated")
+		return nil, false
+	}
+	if h.groupService == nil {
+		response.InternalError(c, "Channel monitor group filter unavailable")
+		return nil, false
+	}
+	groups, err := h.groupService.GetAvailableGroups(c.Request.Context(), subject.UserID)
+	if err != nil {
+		response.ErrorFrom(c, err)
+		return nil, false
+	}
+	return buildAllowedGroupNameSet(groups), true
+}
+
+func buildAllowedGroupNameSet(groups []service.Group) map[string]struct{} {
+	out := make(map[string]struct{}, len(groups))
+	for _, group := range groups {
+		name := strings.TrimSpace(group.Name)
+		if name == "" {
+			continue
+		}
+		out[name] = struct{}{}
+	}
+	return out
+}
+
+func canViewMonitorGroup(groupName string, allowed map[string]struct{}) bool {
+	if len(allowed) == 0 {
+		return false
+	}
+	_, ok := allowed[strings.TrimSpace(groupName)]
+	return ok
+}
+
+func filterUserMonitorViewsByGroup(
+	views []*service.UserMonitorView,
+	allowed map[string]struct{},
+) []*service.UserMonitorView {
+	if len(views) == 0 {
+		return []*service.UserMonitorView{}
+	}
+	out := make([]*service.UserMonitorView, 0, len(views))
+	for _, view := range views {
+		if view == nil || !canViewMonitorGroup(view.GroupName, allowed) {
+			continue
+		}
+		out = append(out, view)
+	}
+	return out
 }
 
 // --- Response ---
@@ -149,6 +224,13 @@ func (h *ChannelMonitorUserHandler) List(c *gin.Context) {
 		response.ErrorFrom(c, err)
 		return
 	}
+	if !h.isAdmin(c) {
+		allowed, ok := h.visibleGroupNames(c)
+		if !ok {
+			return
+		}
+		views = filterUserMonitorViewsByGroup(views, allowed)
+	}
 	items := make([]channelMonitorUserListItem, 0, len(views))
 	for _, v := range views {
 		items = append(items, userMonitorViewToItem(v))
@@ -171,6 +253,16 @@ func (h *ChannelMonitorUserHandler) GetStatus(c *gin.Context) {
 	if err != nil {
 		response.ErrorFrom(c, err)
 		return
+	}
+	if !h.isAdmin(c) {
+		allowed, ok := h.visibleGroupNames(c)
+		if !ok {
+			return
+		}
+		if !canViewMonitorGroup(detail.GroupName, allowed) {
+			response.ErrorFrom(c, service.ErrChannelMonitorNotFound)
+			return
+		}
 	}
 	response.Success(c, userMonitorDetailToResponse(detail))
 }
