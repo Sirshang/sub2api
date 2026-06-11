@@ -97,6 +97,25 @@ func TestSecurityHeaders(t *testing.T) {
 		assert.Equal(t, "strict-origin-when-cross-origin", w.Header().Get("Referrer-Policy"))
 	})
 
+	t.Run("custom_pages_allow_same_origin_embedding", func(t *testing.T) {
+		cfg := config.CSPConfig{
+			Enabled: true,
+			Policy:  "default-src 'self'; frame-ancestors 'none'; script-src 'self' __CSP_NONCE__",
+		}
+		middleware := SecurityHeaders(cfg, nil)
+
+		w := httptest.NewRecorder()
+		c, _ := gin.CreateTestContext(w)
+		c.Request = httptest.NewRequest(http.MethodGet, "/custom-pages/recharge.html", nil)
+
+		middleware(c)
+
+		assert.Equal(t, "SAMEORIGIN", w.Header().Get("X-Frame-Options"))
+		csp := w.Header().Get("Content-Security-Policy")
+		assert.Contains(t, csp, "frame-ancestors 'self'")
+		assert.NotContains(t, csp, "frame-ancestors 'none'")
+	})
+
 	t.Run("csp_disabled_no_csp_header", func(t *testing.T) {
 		cfg := config.CSPConfig{Enabled: false}
 		middleware := SecurityHeaders(cfg, nil)
@@ -407,6 +426,23 @@ func TestAddToDirective(t *testing.T) {
 
 		assert.Contains(t, result, "script-src")
 		assert.Contains(t, result, "https://example.com")
+	})
+}
+
+func TestSetDirective(t *testing.T) {
+	t.Run("replaces_existing_directive", func(t *testing.T) {
+		policy := "default-src 'self'; frame-ancestors 'none'; script-src 'self'"
+		result := setDirective(policy, "frame-ancestors", "'self'")
+
+		assert.Contains(t, result, "frame-ancestors 'self'")
+		assert.NotContains(t, result, "frame-ancestors 'none'")
+	})
+
+	t.Run("appends_missing_directive", func(t *testing.T) {
+		policy := "default-src 'self'; script-src 'self'"
+		result := setDirective(policy, "frame-ancestors", "'self'")
+
+		assert.Contains(t, result, "frame-ancestors 'self'")
 	})
 }
 

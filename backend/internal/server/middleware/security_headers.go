@@ -90,9 +90,12 @@ func SecurityHeaders(cfg config.CSPConfig, getFrameSrcOrigins func() []string) g
 				}
 			}
 		}
+		if allowsSameOriginEmbedding(c) {
+			finalPolicy = setDirective(finalPolicy, "frame-ancestors", "'self'")
+		}
 
 		c.Header("X-Content-Type-Options", "nosniff")
-		c.Header("X-Frame-Options", "DENY")
+		c.Header("X-Frame-Options", frameOptionsForPath(c))
 		c.Header("Referrer-Policy", "strict-origin-when-cross-origin")
 		if isAPIRoutePath(c) {
 			c.Next()
@@ -113,6 +116,20 @@ func SecurityHeaders(cfg config.CSPConfig, getFrameSrcOrigins func() []string) g
 		}
 		c.Next()
 	}
+}
+
+func frameOptionsForPath(c *gin.Context) string {
+	if allowsSameOriginEmbedding(c) {
+		return "SAMEORIGIN"
+	}
+	return "DENY"
+}
+
+func allowsSameOriginEmbedding(c *gin.Context) bool {
+	if c == nil || c.Request == nil || c.Request.URL == nil {
+		return false
+	}
+	return strings.HasPrefix(c.Request.URL.Path, "/custom-pages/")
 }
 
 func isAPIRoutePath(c *gin.Context) bool {
@@ -194,4 +211,32 @@ func addToDirective(policy, directive, value string) string {
 	// Insert value before the semicolon
 	insertPos := idx + endIdx
 	return policy[:insertPos] + " " + value + policy[insertPos:]
+}
+
+func setDirective(policy, directive string, values ...string) string {
+	trimmedDirective := strings.TrimSpace(directive)
+	if trimmedDirective == "" {
+		return policy
+	}
+
+	parts := strings.Split(policy, ";")
+	directiveValue := trimmedDirective
+	if len(values) > 0 {
+		directiveValue += " " + strings.Join(values, " ")
+	}
+
+	for i, rawDirective := range parts {
+		fields := strings.Fields(strings.TrimSpace(rawDirective))
+		if len(fields) == 0 || fields[0] != trimmedDirective {
+			continue
+		}
+		parts[i] = directiveValue
+		return strings.Join(parts, ";")
+	}
+
+	if strings.TrimSpace(policy) == "" {
+		return directiveValue
+	}
+
+	return strings.TrimRight(policy, " ;") + "; " + directiveValue
 }
