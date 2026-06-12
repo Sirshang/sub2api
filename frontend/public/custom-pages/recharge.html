@@ -405,6 +405,67 @@
         font-weight: 600;
       }
 
+      .contact-section {
+        margin-top: 22px;
+      }
+
+      .contact-wrap {
+        display: grid;
+        grid-template-columns: minmax(0, 1.2fr) minmax(260px, 320px);
+        align-items: center;
+        gap: 24px;
+      }
+
+      .contact-label {
+        display: inline-flex;
+        align-items: center;
+        margin-bottom: 12px;
+        border-radius: 999px;
+        padding: 6px 12px;
+        background: #eef5ff;
+        color: #2563eb;
+        font-size: 13px;
+        font-weight: 700;
+      }
+
+      .contact-copy h2 {
+        margin: 0 0 12px;
+        font-size: 28px;
+      }
+
+      .contact-desc,
+      .contact-note {
+        margin: 0;
+        color: #64748b;
+        font-size: 15px;
+        line-height: 1.75;
+      }
+
+      .contact-id {
+        margin: 16px 0 12px;
+        border-radius: 16px;
+        padding: 16px 18px;
+        background: #0f172a;
+        color: #fff;
+        font-size: 24px;
+        font-weight: 800;
+        letter-spacing: 0.04em;
+      }
+
+      .contact-qr-box {
+        text-align: center;
+      }
+
+      .contact-qr {
+        display: block;
+        width: 100%;
+        max-width: 320px;
+        margin: 0 auto;
+        border-radius: 24px;
+        border: 1px solid var(--line);
+        box-shadow: 0 16px 40px rgba(15, 23, 42, 0.08);
+      }
+
       .pricing-intro {
         margin: 0 0 22px;
         color: var(--subtle);
@@ -545,6 +606,10 @@
         .pricing-grid {
           grid-template-columns: repeat(2, minmax(0, 1fr));
         }
+
+        .contact-wrap {
+          grid-template-columns: 1fr;
+        }
       }
 
       @media (max-width: 720px) {
@@ -570,6 +635,14 @@
 
         .section {
           padding: 18px;
+        }
+
+        .contact-copy h2 {
+          font-size: 24px;
+        }
+
+        .contact-id {
+          font-size: 20px;
         }
       }
     </style>
@@ -844,6 +917,21 @@
             </ul>
           </section>
         </div>
+
+        <section class="section contact-section">
+          <div class="contact-wrap">
+            <div class="contact-copy">
+              <div class="contact-label">联系客服</div>
+              <h2>微信客服</h2>
+              <p class="contact-desc">如需人工协助、定制套餐、支付后未到账或兑换异常，可直接添加微信联系客服处理。</p>
+              <div class="contact-id">szj77563</div>
+              <p class="contact-note">支持充值咨询、订单处理、套餐说明与兑换协助。</p>
+            </div>
+            <div class="contact-qr-box">
+              <img class="contact-qr" src="/custom-pages/customer-service-wechat-szj77563.jpg" alt="微信客服二维码" />
+            </div>
+          </div>
+        </section>
       </div>
     </div>
     <script src="/custom-pages/recharge-tabs.js" defer></script>
