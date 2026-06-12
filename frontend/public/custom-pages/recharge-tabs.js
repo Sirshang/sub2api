@@ -3,6 +3,9 @@ document.addEventListener("DOMContentLoaded", () => {
   const indicator = document.querySelector(".tab-indicator");
   const tabs = Array.from(document.querySelectorAll("[data-tab]"));
   const views = Array.from(document.querySelectorAll("[data-view]"));
+  const contactModal = document.querySelector("#contact-modal");
+  const openContactModalTrigger = document.querySelector("[data-open-contact-modal]");
+  const closeContactModalTriggers = Array.from(document.querySelectorAll("[data-close-contact-modal]"));
 
   function moveIndicator(tab) {
     if (!tabsWrap || !indicator || !tab) return;
@@ -25,6 +28,32 @@ document.addEventListener("DOMContentLoaded", () => {
 
   tabs.forEach((tab) => {
     tab.addEventListener("click", () => setActiveTab(tab));
+  });
+
+  function openContactModal() {
+    if (!contactModal) return;
+    contactModal.hidden = false;
+    document.body.style.overflow = "hidden";
+  }
+
+  function closeContactModal() {
+    if (!contactModal) return;
+    contactModal.hidden = true;
+    document.body.style.overflow = "";
+  }
+
+  if (openContactModalTrigger) {
+    openContactModalTrigger.addEventListener("click", openContactModal);
+  }
+
+  closeContactModalTriggers.forEach((trigger) => {
+    trigger.addEventListener("click", closeContactModal);
+  });
+
+  document.addEventListener("keydown", (event) => {
+    if (event.key === "Escape" && contactModal && !contactModal.hidden) {
+      closeContactModal();
+    }
   });
 
   setActiveTab(document.querySelector("[data-tab].active") || tabs[0]);

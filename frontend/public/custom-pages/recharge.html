@@ -405,6 +405,16 @@
         font-weight: 600;
       }
 
+      .footer-help button {
+        padding: 0;
+        border: 0;
+        background: transparent;
+        color: #2563eb;
+        font: inherit;
+        font-weight: 600;
+        cursor: pointer;
+      }
+
       .contact-section {
         margin-top: 22px;
       }
@@ -464,6 +474,74 @@
         border-radius: 24px;
         border: 1px solid var(--line);
         box-shadow: 0 16px 40px rgba(15, 23, 42, 0.08);
+      }
+
+      .contact-modal[hidden] {
+        display: none;
+      }
+
+      .contact-modal {
+        position: fixed;
+        inset: 0;
+        z-index: 50;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 24px;
+      }
+
+      .contact-modal-backdrop {
+        position: absolute;
+        inset: 0;
+        background: rgba(15, 23, 42, 0.62);
+        backdrop-filter: blur(4px);
+      }
+
+      .contact-modal-dialog {
+        position: relative;
+        z-index: 1;
+        width: min(100%, 440px);
+        border-radius: 28px;
+        padding: 28px;
+        background: #fff;
+        box-shadow: 0 24px 60px rgba(15, 23, 42, 0.22);
+        text-align: center;
+      }
+
+      .contact-modal-close {
+        position: absolute;
+        top: 14px;
+        right: 14px;
+        width: 38px;
+        height: 38px;
+        border: 0;
+        border-radius: 999px;
+        background: #f1f5f9;
+        color: #0f172a;
+        font-size: 22px;
+        line-height: 1;
+        cursor: pointer;
+      }
+
+      .contact-modal-title {
+        margin: 0 0 10px;
+        font-size: 28px;
+        font-weight: 800;
+      }
+
+      .contact-modal-text {
+        margin: 0 0 18px;
+        color: #64748b;
+        font-size: 15px;
+        line-height: 1.7;
+      }
+
+      .contact-modal-id {
+        margin: 18px 0 0;
+        color: #0f172a;
+        font-size: 26px;
+        font-weight: 800;
+        letter-spacing: 0.04em;
       }
 
       .pricing-intro {
@@ -820,7 +898,7 @@
           </div>
           <div class="footer-help">
             有任何问题？
-            <a href="https://pay.ldxp.cn/item/wpf1er" target="_blank" rel="noreferrer">访问支付购买入口</a>
+            <button type="button" data-open-contact-modal>访问支付购买入口</button>
           </div>
         </div>
         </div>
@@ -932,6 +1010,16 @@
             </div>
           </div>
         </section>
+      </div>
+    </div>
+    <div class="contact-modal" id="contact-modal" hidden>
+      <div class="contact-modal-backdrop" data-close-contact-modal></div>
+      <div class="contact-modal-dialog" role="dialog" aria-modal="true" aria-labelledby="contact-modal-title">
+        <button class="contact-modal-close" type="button" aria-label="关闭" data-close-contact-modal>&times;</button>
+        <h2 class="contact-modal-title" id="contact-modal-title">支付购买入口</h2>
+        <p class="contact-modal-text">请使用微信扫码添加客服，或直接搜索下方微信号联系购买与充值支持。</p>
+        <img class="contact-qr" src="/custom-pages/customer-service-wechat-szj77563.jpg" alt="支付购买入口二维码" />
+        <div class="contact-modal-id">szj77563</div>
       </div>
     </div>
     <script src="/custom-pages/recharge-tabs.js" defer></script>
