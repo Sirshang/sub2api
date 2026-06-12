@@ -846,33 +846,6 @@
         </div>
       </div>
     </div>
-    <script>
-      const tabsWrap = document.querySelector(".tabs");
-      const indicator = document.querySelector(".tab-indicator");
-      const tabs = document.querySelectorAll("[data-tab]");
-      const views = document.querySelectorAll("[data-view]");
-
-      function moveIndicator(tab) {
-        if (!tabsWrap || !indicator || !tab) return;
-        const wrapRect = tabsWrap.getBoundingClientRect();
-        const tabRect = tab.getBoundingClientRect();
-
-        indicator.style.width = `${tabRect.width}px`;
-        indicator.style.height = `${tabRect.height}px`;
-        indicator.style.transform = `translate(${tabRect.left - wrapRect.left}px, ${tabRect.top - wrapRect.top}px)`;
-      }
-
-      tabs.forEach((tab) => {
-        tab.addEventListener("click", () => {
-          const target = tab.dataset.tab;
-          tabs.forEach((item) => item.classList.toggle("active", item === tab));
-          views.forEach((view) => view.classList.toggle("active", view.dataset.view === target));
-          moveIndicator(tab);
-        });
-      });
-
-      moveIndicator(document.querySelector("[data-tab].active"));
-      window.addEventListener("resize", () => moveIndicator(document.querySelector("[data-tab].active")));
-    </script>
+    <script src="/custom-pages/recharge-tabs.js" defer></script>
   </body>
 </html>
