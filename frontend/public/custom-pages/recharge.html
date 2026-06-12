@@ -28,8 +28,14 @@
 
       body {
         margin: 0;
-        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC",
-          "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+        font-family:
+          -apple-system,
+          BlinkMacSystemFont,
+          "Segoe UI",
+          "PingFang SC",
+          "Hiragino Sans GB",
+          "Microsoft YaHei",
+          sans-serif;
         background: linear-gradient(180deg, #f8fbff 0%, #f1f5f9 100%);
         color: var(--text);
       }
@@ -66,6 +72,7 @@
       }
 
       .tabs {
+        position: relative;
         display: inline-flex;
         gap: 8px;
         background: #eef2f7;
@@ -76,7 +83,25 @@
         justify-content: center;
       }
 
+      .tab-indicator {
+        position: absolute;
+        left: 0;
+        top: 0;
+        width: 0;
+        height: 0;
+        border-radius: 999px;
+        background: linear-gradient(135deg, #7c3aed, #8b5cf6);
+        box-shadow: 0 12px 24px rgba(124, 58, 237, 0.24);
+        pointer-events: none;
+        transition:
+          transform 260ms cubic-bezier(0.22, 1, 0.36, 1),
+          width 260ms cubic-bezier(0.22, 1, 0.36, 1),
+          height 260ms cubic-bezier(0.22, 1, 0.36, 1);
+      }
+
       .tab {
+        position: relative;
+        z-index: 1;
         border: 0;
         border-radius: 999px;
         padding: 12px 22px;
@@ -84,12 +109,47 @@
         color: #475569;
         font-size: 14px;
         cursor: pointer;
+        transition:
+          color 180ms ease,
+          transform 180ms ease;
+      }
+
+      .tab:hover {
+        transform: translateY(-1px);
       }
 
       .tab.active {
-        background: linear-gradient(135deg, #7c3aed, #8b5cf6);
         color: #fff;
-        box-shadow: 0 12px 24px rgba(124, 58, 237, 0.24);
+      }
+
+      .view {
+        display: none;
+      }
+
+      .view.active {
+        display: block;
+        animation: view-in 240ms ease both;
+      }
+
+      @keyframes view-in {
+        from {
+          opacity: 0;
+          transform: translateY(8px);
+        }
+
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      @media (prefers-reduced-motion: reduce) {
+        .tab,
+        .tab-indicator,
+        .view.active {
+          animation: none;
+          transition: none;
+        }
       }
 
       .cards {
@@ -192,6 +252,21 @@
         justify-content: center;
         font-size: 11px;
         flex: 0 0 auto;
+      }
+
+      .feature-list .dot {
+        border: 0;
+        background: currentColor;
+        color: inherit;
+        font-size: 0;
+      }
+
+      .feature-list .dot::before {
+        content: "✓";
+        color: #fff;
+        font-size: 12px;
+        font-weight: 900;
+        line-height: 1;
       }
 
       .pill {
@@ -330,9 +405,144 @@
         font-weight: 600;
       }
 
+      .pricing-intro {
+        margin: 0 0 22px;
+        color: var(--subtle);
+        text-align: center;
+        font-size: 15px;
+      }
+
+      .pricing-grid {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 16px;
+      }
+
+      .pricing-card {
+        position: relative;
+        min-height: 260px;
+        padding: 20px;
+        border: 1px solid var(--line);
+        border-radius: var(--radius-md);
+        background: linear-gradient(180deg, #ffffff 0%, #f8fbff 100%);
+        box-shadow: 0 14px 34px rgba(15, 23, 42, 0.05);
+      }
+
+      .pricing-card.featured {
+        border-color: #b8d5ff;
+        background: linear-gradient(180deg, #eef5ff 0%, #ffffff 100%);
+        box-shadow: 0 18px 36px rgba(59, 130, 246, 0.12);
+      }
+
+      .pricing-card-head {
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        gap: 16px;
+        margin-bottom: 20px;
+      }
+
+      .provider {
+        margin: 0 0 8px;
+        color: #f97316;
+        font-size: 13px;
+        font-weight: 800;
+      }
+
+      .provider.openai {
+        color: #059669;
+      }
+
+      .model-name {
+        margin: 0;
+        font-size: 21px;
+        line-height: 1.25;
+      }
+
+      .context-badge {
+        flex: 0 0 auto;
+        border-radius: 999px;
+        padding: 5px 12px;
+        background: #fff4e6;
+        color: #f97316;
+        font-size: 12px;
+        font-weight: 800;
+      }
+
+      .context-badge.green {
+        background: #e7f9ee;
+        color: #059669;
+      }
+
+      .pricing-rows {
+        display: grid;
+        gap: 0;
+      }
+
+      .pricing-row {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 16px;
+        padding: 10px 0;
+        border-top: 1px solid #e7eef8;
+        color: #64748b;
+        font-size: 14px;
+      }
+
+      .pricing-row strong {
+        color: var(--text);
+        font-size: 16px;
+      }
+
+      .billing-note {
+        margin-top: 22px;
+        padding: 22px;
+        border: 1px solid var(--line);
+        border-radius: var(--radius-md);
+        background: #fff;
+      }
+
+      .billing-note h2 {
+        margin: 0 0 16px;
+        font-size: 22px;
+      }
+
+      .billing-note-list {
+        list-style: none;
+        margin: 0;
+        padding: 0;
+        display: grid;
+        gap: 12px;
+      }
+
+      .billing-note-list li {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        color: #334155;
+        font-size: 15px;
+        line-height: 1.6;
+      }
+
+      .check-dot {
+        width: 20px;
+        height: 20px;
+        flex: 0 0 auto;
+        border-radius: 999px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        background: #10b981;
+        color: #fff;
+        font-size: 13px;
+        font-weight: 800;
+      }
+
       @media (max-width: 1100px) {
         .cards,
-        .steps {
+        .steps,
+        .pricing-grid {
           grid-template-columns: repeat(2, minmax(0, 1fr));
         }
       }
@@ -353,7 +563,8 @@
         }
 
         .cards,
-        .steps {
+        .steps,
+        .pricing-grid {
           grid-template-columns: 1fr;
         }
 
@@ -368,15 +579,16 @@
       <div class="shell">
         <div class="hero">
           <h1>选择适合你的充值/订阅服务</h1>
-          <p>支持积分充值、余额充值、月套餐与统一模型定价查看；当前页面已根据示例方案展示。</p>
+          <p>支持余额充值、月套餐与统一模型定价查看；当前页面已根据示例方案展示。</p>
           <div class="tabs">
-            <button class="tab active" type="button">余额充值</button>
+            <span class="tab-indicator" aria-hidden="true"></span>
+            <button class="tab active" type="button" data-tab="balance">余额充值</button>
+            <button class="tab" type="button" data-tab="pricing">模型定价</button>
             <button class="tab" type="button">月套餐</button>
-            <button class="tab" type="button">模型定价</button>
-            <button class="tab" type="button">积分充值</button>
           </div>
         </div>
 
+        <div class="view active" data-view="balance">
         <div class="cards">
           <section class="card">
             <div class="plan-title">余额 $50</div>
@@ -385,25 +597,25 @@
             </div>
             <ul class="feature-list">
               <li class="feature">
-                <span class="feature-left"><span class="dot" style="color:#10b981">•</span><span>低价 Claude</span></span>
+                <span class="feature-left"><span class="dot" style="color: #10b981">•</span><span>低价 Claude</span></span>
                 <span class="pill green">0.25x</span>
               </li>
               <li class="feature">
-                <span class="feature-left"><span class="dot" style="color:#f97316">•</span><span>优质 Claude</span></span>
+                <span class="feature-left"><span class="dot" style="color: #f97316">•</span><span>优质 Claude</span></span>
                 <span class="pill orange">0.75x</span>
               </li>
               <li class="feature">
-                <span class="feature-left"><span class="dot" style="color:#0b77e3">•</span><span>优质 OpenAI</span></span>
+                <span class="feature-left"><span class="dot" style="color: #0b77e3">•</span><span>优质 OpenAI</span></span>
                 <span class="pill blue">0.5x</span>
               </li>
               <li class="feature">
-                <span class="feature-left"><span class="dot" style="color:#94a3b8">•</span><span>按实际使用量扣费</span></span>
+                <span class="feature-left"><span class="dot" style="color: #94a3b8">•</span><span>按实际使用量扣费</span></span>
               </li>
               <li class="feature">
-                <span class="feature-left"><span class="dot" style="color:#94a3b8">•</span><span>永久不过期</span></span>
+                <span class="feature-left"><span class="dot" style="color: #94a3b8">•</span><span>永久不过期</span></span>
               </li>
             </ul>
-            <a class="buy-btn" href="https://pay.ldxp.cn/shop/C754PCXS" target="_blank" rel="noreferrer">前往购买</a>
+            <a class="buy-btn" href="https://pay.ldxp.cn/item/wpf1er" target="_blank" rel="noreferrer">前往购买</a>
           </section>
 
           <section class="card">
@@ -415,25 +627,25 @@
             </div>
             <ul class="feature-list">
               <li class="feature">
-                <span class="feature-left"><span class="dot" style="color:#10b981">•</span><span>低价 Claude</span></span>
+                <span class="feature-left"><span class="dot" style="color: #10b981">•</span><span>低价 Claude</span></span>
                 <span class="pill green">0.25x</span>
               </li>
               <li class="feature">
-                <span class="feature-left"><span class="dot" style="color:#f97316">•</span><span>优质 Claude</span></span>
+                <span class="feature-left"><span class="dot" style="color: #f97316">•</span><span>优质 Claude</span></span>
                 <span class="pill orange">0.75x</span>
               </li>
               <li class="feature">
-                <span class="feature-left"><span class="dot" style="color:#0b77e3">•</span><span>优质 OpenAI</span></span>
+                <span class="feature-left"><span class="dot" style="color: #0b77e3">•</span><span>优质 OpenAI</span></span>
                 <span class="pill blue">0.5x</span>
               </li>
               <li class="feature">
-                <span class="feature-left"><span class="dot" style="color:#94a3b8">•</span><span>按实际使用量扣费</span></span>
+                <span class="feature-left"><span class="dot" style="color: #94a3b8">•</span><span>按实际使用量扣费</span></span>
               </li>
               <li class="feature">
-                <span class="feature-left"><span class="dot" style="color:#94a3b8">•</span><span>永久不过期</span></span>
+                <span class="feature-left"><span class="dot" style="color: #94a3b8">•</span><span>永久不过期</span></span>
               </li>
             </ul>
-            <a class="buy-btn" href="https://pay.ldxp.cn/shop/C754PCXS" target="_blank" rel="noreferrer">前往购买</a>
+            <a class="buy-btn" href="https://pay.ldxp.cn/item/qsz18b" target="_blank" rel="noreferrer">前往购买</a>
           </section>
 
           <section class="card featured">
@@ -445,25 +657,25 @@
             </div>
             <ul class="feature-list">
               <li class="feature">
-                <span class="feature-left"><span class="dot" style="color:#10b981">•</span><span>低价 Claude</span></span>
+                <span class="feature-left"><span class="dot" style="color: #10b981">•</span><span>低价 Claude</span></span>
                 <span class="pill green">0.25x</span>
               </li>
               <li class="feature">
-                <span class="feature-left"><span class="dot" style="color:#f97316">•</span><span>优质 Claude</span></span>
+                <span class="feature-left"><span class="dot" style="color: #f97316">•</span><span>优质 Claude</span></span>
                 <span class="pill orange">0.75x</span>
               </li>
               <li class="feature">
-                <span class="feature-left"><span class="dot" style="color:#0b77e3">•</span><span>优质 OpenAI</span></span>
+                <span class="feature-left"><span class="dot" style="color: #0b77e3">•</span><span>优质 OpenAI</span></span>
                 <span class="pill blue">0.5x</span>
               </li>
               <li class="feature">
-                <span class="feature-left"><span class="dot" style="color:#94a3b8">•</span><span>按实际使用量扣费</span></span>
+                <span class="feature-left"><span class="dot" style="color: #94a3b8">•</span><span>按实际使用量扣费</span></span>
               </li>
               <li class="feature">
-                <span class="feature-left"><span class="dot" style="color:#94a3b8">•</span><span>永久不过期</span></span>
+                <span class="feature-left"><span class="dot" style="color: #94a3b8">•</span><span>永久不过期</span></span>
               </li>
             </ul>
-            <a class="buy-btn" href="https://pay.ldxp.cn/shop/C754PCXS" target="_blank" rel="noreferrer">前往购买</a>
+            <a class="buy-btn" href="https://pay.ldxp.cn/item/efurss" target="_blank" rel="noreferrer">前往购买</a>
           </section>
 
           <section class="card">
@@ -475,33 +687,33 @@
             </div>
             <ul class="feature-list">
               <li class="feature">
-                <span class="feature-left"><span class="dot" style="color:#10b981">•</span><span>低价 Claude</span></span>
+                <span class="feature-left"><span class="dot" style="color: #10b981">•</span><span>低价 Claude</span></span>
                 <span class="pill green">0.25x</span>
               </li>
               <li class="feature">
-                <span class="feature-left"><span class="dot" style="color:#f97316">•</span><span>优质 Claude</span></span>
+                <span class="feature-left"><span class="dot" style="color: #f97316">•</span><span>优质 Claude</span></span>
                 <span class="pill orange">0.75x</span>
               </li>
               <li class="feature">
-                <span class="feature-left"><span class="dot" style="color:#0b77e3">•</span><span>优质 OpenAI</span></span>
+                <span class="feature-left"><span class="dot" style="color: #0b77e3">•</span><span>优质 OpenAI</span></span>
                 <span class="pill blue">0.5x</span>
               </li>
               <li class="feature">
-                <span class="feature-left"><span class="dot" style="color:#94a3b8">•</span><span>按实际使用量扣费</span></span>
+                <span class="feature-left"><span class="dot" style="color: #94a3b8">•</span><span>按实际使用量扣费</span></span>
               </li>
               <li class="feature">
-                <span class="feature-left"><span class="dot" style="color:#94a3b8">•</span><span>永久不过期</span></span>
+                <span class="feature-left"><span class="dot" style="color: #94a3b8">•</span><span>永久不过期</span></span>
               </li>
             </ul>
-            <a class="buy-btn" href="https://pay.ldxp.cn/shop/C754PCXS" target="_blank" rel="noreferrer">前往购买</a>
+            <a class="buy-btn" href="https://pay.ldxp.cn/item/pwdj5d" target="_blank" rel="noreferrer">前往购买</a>
           </section>
         </div>
 
         <div class="section">
           <h2>余额充值说明</h2>
           <ul class="notes">
-            <li><span class="dot" style="color:#10b981">✓</span><span>购买后获得兑换码，在「兑换」页面输入即可到账。</span></li>
-            <li><span class="dot" style="color:#10b981">✓</span><span>余额按实际使用量扣费，所有模型通用。</span></li>
+            <li><span class="dot" style="color: #10b981">✓</span><span>购买后获得兑换码，在「兑换」页面输入即可到账。</span></li>
+            <li><span class="dot" style="color: #10b981">✓</span><span>余额按实际使用量扣费，所有模型通用。</span></li>
           </ul>
         </div>
 
@@ -509,25 +721,25 @@
           <div class="steps-title">购买流程</div>
           <div class="steps">
             <div class="step-card">
-              <div class="step-icon" style="background:#f3e8ff">🛍</div>
+              <div class="step-icon" style="background: #f3e8ff">🛍</div>
               <div class="step-tag">STEP 1</div>
               <div class="step-name">选择套餐</div>
               <div>挑选适合的充值或订阅方案</div>
             </div>
             <div class="step-card">
-              <div class="step-icon" style="background:#fff7e6">💳</div>
+              <div class="step-icon" style="background: #fff7e6">💳</div>
               <div class="step-tag">STEP 2</div>
               <div class="step-name">完成支付</div>
               <div>通过淘宝安全支付完成购买</div>
             </div>
             <div class="step-card">
-              <div class="step-icon" style="background:#e8fff3">🔑</div>
+              <div class="step-icon" style="background: #e8fff3">🔑</div>
               <div class="step-tag">STEP 3</div>
               <div class="step-name">获取兑换码</div>
               <div>付款后自动发送兑换码</div>
             </div>
             <div class="step-card">
-              <div class="step-icon" style="background:#e8f3ff">🚀</div>
+              <div class="step-icon" style="background: #e8f3ff">🚀</div>
               <div class="step-tag">STEP 4</div>
               <div class="step-name">开始使用</div>
               <div>配置 API 后即可在工具中使用</div>
@@ -535,10 +747,132 @@
           </div>
           <div class="footer-help">
             有任何问题？
-            <a href="https://pay.ldxp.cn/shop/C754PCXS" target="_blank" rel="noreferrer">访问支付购买入口</a>
+            <a href="https://pay.ldxp.cn/item/wpf1er" target="_blank" rel="noreferrer">访问支付购买入口</a>
           </div>
+        </div>
+        </div>
+
+        <div class="view" data-view="pricing">
+          <p class="pricing-intro">以下为官方 API 定价（每百万 tokens），本站按相同价格计费。</p>
+
+          <div class="pricing-grid">
+            <section class="pricing-card featured">
+              <div class="pricing-card-head">
+                <div>
+                  <p class="provider">Anthropic</p>
+                  <h2 class="model-name">Claude Opus 4.7</h2>
+                </div>
+                <span class="context-badge">200K~1M</span>
+              </div>
+              <div class="pricing-rows">
+                <div class="pricing-row"><span>输入 (Input)</span><strong>$5.00</strong></div>
+                <div class="pricing-row"><span>输出 (Output)</span><strong>$25.00</strong></div>
+                <div class="pricing-row"><span>缓存读取 (Cache Read)</span><strong>$0.50</strong></div>
+                <div class="pricing-row"><span>缓存写入 (Cache Write)</span><strong>$6.25</strong></div>
+              </div>
+            </section>
+
+            <section class="pricing-card">
+              <div class="pricing-card-head">
+                <div>
+                  <p class="provider">Anthropic</p>
+                  <h2 class="model-name">Claude Opus 4.6</h2>
+                </div>
+                <span class="context-badge">200K~1M</span>
+              </div>
+              <div class="pricing-rows">
+                <div class="pricing-row"><span>输入 (Input)</span><strong>$5.00</strong></div>
+                <div class="pricing-row"><span>输出 (Output)</span><strong>$25.00</strong></div>
+                <div class="pricing-row"><span>缓存读取 (Cache Read)</span><strong>$0.50</strong></div>
+                <div class="pricing-row"><span>缓存写入 (Cache Write)</span><strong>$6.25</strong></div>
+              </div>
+            </section>
+
+            <section class="pricing-card">
+              <div class="pricing-card-head">
+                <div>
+                  <p class="provider">Anthropic</p>
+                  <h2 class="model-name">Claude Sonnet 4.6</h2>
+                </div>
+                <span class="context-badge">200K~1M</span>
+              </div>
+              <div class="pricing-rows">
+                <div class="pricing-row"><span>输入 (Input)</span><strong>$3.00</strong></div>
+                <div class="pricing-row"><span>输出 (Output)</span><strong>$15.00</strong></div>
+                <div class="pricing-row"><span>缓存读取 (Cache Read)</span><strong>$0.30</strong></div>
+                <div class="pricing-row"><span>缓存写入 (Cache Write)</span><strong>$3.75</strong></div>
+              </div>
+            </section>
+
+            <section class="pricing-card">
+              <div class="pricing-card-head">
+                <div>
+                  <p class="provider openai">OpenAI</p>
+                  <h2 class="model-name">GPT-5.5</h2>
+                </div>
+                <span class="context-badge green">1M</span>
+              </div>
+              <div class="pricing-rows">
+                <div class="pricing-row"><span>输入 (Input)</span><strong>$5.00</strong></div>
+                <div class="pricing-row"><span>输出 (Output)</span><strong>$30.00</strong></div>
+                <div class="pricing-row"><span>缓存读取 (Cache Read)</span><strong>$0.50</strong></div>
+              </div>
+            </section>
+
+            <section class="pricing-card">
+              <div class="pricing-card-head">
+                <div>
+                  <p class="provider openai">OpenAI</p>
+                  <h2 class="model-name">GPT-5.4</h2>
+                </div>
+                <span class="context-badge green">1M</span>
+              </div>
+              <div class="pricing-rows">
+                <div class="pricing-row"><span>输入 (Input)</span><strong>$2.50</strong></div>
+                <div class="pricing-row"><span>输出 (Output)</span><strong>$15.00</strong></div>
+                <div class="pricing-row"><span>缓存读取 (Cache Read)</span><strong>$0.25</strong></div>
+              </div>
+            </section>
+          </div>
+
+          <section class="billing-note">
+            <h2>计费说明</h2>
+            <ul class="billing-note-list">
+              <li><span class="check-dot">✓</span><span>价格单位为美元 / 百万 tokens（与官方一致）</span></li>
+              <li><span class="check-dot">✓</span><span>使用缓存（Prompt Caching）可大幅降低输入成本</span></li>
+              <li><span class="check-dot">✓</span><span>余额扣费按分组倍率换算：低价 Claude 0.4x，优质 Claude 0.75x，优质 OpenAI 0.5x</span></li>
+            </ul>
+          </section>
         </div>
       </div>
     </div>
+    <script>
+      const tabsWrap = document.querySelector(".tabs");
+      const indicator = document.querySelector(".tab-indicator");
+      const tabs = document.querySelectorAll("[data-tab]");
+      const views = document.querySelectorAll("[data-view]");
+
+      function moveIndicator(tab) {
+        if (!tabsWrap || !indicator || !tab) return;
+        const wrapRect = tabsWrap.getBoundingClientRect();
+        const tabRect = tab.getBoundingClientRect();
+
+        indicator.style.width = `${tabRect.width}px`;
+        indicator.style.height = `${tabRect.height}px`;
+        indicator.style.transform = `translate(${tabRect.left - wrapRect.left}px, ${tabRect.top - wrapRect.top}px)`;
+      }
+
+      tabs.forEach((tab) => {
+        tab.addEventListener("click", () => {
+          const target = tab.dataset.tab;
+          tabs.forEach((item) => item.classList.toggle("active", item === tab));
+          views.forEach((view) => view.classList.toggle("active", view.dataset.view === target));
+          moveIndicator(tab);
+        });
+      });
+
+      moveIndicator(document.querySelector("[data-tab].active"));
+      window.addEventListener("resize", () => moveIndicator(document.querySelector("[data-tab].active")));
+    </script>
   </body>
 </html>
