@@ -4,7 +4,8 @@ param(
     [string]$GitRemote = "origin",
     [string]$Branch = "",
     [string]$RemoteRepoDir = "/root/sub2api-deploy-src",
-    [string]$RuntimeDir = "/www/wwwroot/sub2api-deploy"
+    [string]$RuntimeDir = "/www/wwwroot/sub2api-deploy",
+    [switch]$KeepTestArtifacts
 )
 
 $ErrorActionPreference = "Stop"
@@ -34,7 +35,7 @@ if ($LASTEXITCODE -ne 0) {
 $RemoteCommand = @"
 cd '$RemoteRepoDir' && \
 chmod +x ./deploy/release-from-git.sh ./deploy/runtime-sync.sh ./deploy/runtime-stack.sh ./deploy/build_image.sh && \
-./deploy/release-from-git.sh --git-remote '$GitRemote' --branch '$Branch' --runtime-dir '$RuntimeDir'
+./deploy/release-from-git.sh --git-remote '$GitRemote' --branch '$Branch' --runtime-dir '$RuntimeDir' $(if ($KeepTestArtifacts) { '--keep-test-artifacts' })
 "@
 
 Write-Host "== remote release =="

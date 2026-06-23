@@ -10,6 +10,7 @@ BRANCH=""
 RUNTIME_DIR="/www/wwwroot/sub2api-deploy"
 SKIP_TEST="false"
 SKIP_PROD="false"
+KEEP_TEST_ARTIFACTS="false"
 
 while [[ $# -gt 0 ]]; do
   case "$1" in
@@ -31,6 +32,10 @@ while [[ $# -gt 0 ]]; do
       ;;
     --skip-prod)
       SKIP_PROD="true"
+      shift
+      ;;
+    --keep-test-artifacts)
+      KEEP_TEST_ARTIFACTS="true"
       shift
       ;;
     *)
@@ -77,6 +82,10 @@ fi
 if [[ "${SKIP_PROD}" != "true" ]]; then
   "${SCRIPT_DIR}/build_image.sh" "${PROD_IMAGE_TAG:-sub2api:monitor-group-filter}"
   "${RUNTIME_DIR}/runtime-stack.sh" prod
+fi
+
+if [[ "${SKIP_TEST}" != "true" && "${KEEP_TEST_ARTIFACTS}" != "true" ]]; then
+  "${RUNTIME_DIR}/runtime-stack.sh" cleanup-test
 fi
 
 "${RUNTIME_DIR}/runtime-stack.sh" status

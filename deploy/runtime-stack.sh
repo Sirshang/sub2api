@@ -58,6 +58,13 @@ wait_for_http() {
   curl -fsS "${url}"
 }
 
+cleanup_test_artifacts() {
+  docker rm -f sub2api-test >/dev/null 2>&1 || true
+  docker rmi "${TEST_IMAGE_TAG:-sub2api:monitor-group-filter-test}" >/dev/null 2>&1 || true
+  rm -rf "${RUNTIME_DIR}/${TEST_DATA_DIR:-data-test}"
+  mkdir -p "${RUNTIME_DIR}/${TEST_DATA_DIR:-data-test}"
+}
+
 load_base_env() {
   [[ -f "${RUNTIME_DIR}/.env" ]] || die "missing ${RUNTIME_DIR}/.env"
   set -a
@@ -349,11 +356,15 @@ case "${COMMAND}" in
     run_app "sub2api-test" "${TEST_IMAGE_TAG}" "${TEST_BIND_HOST}" "${TEST_HOST_PORT}" "${TEST_DATA_DIR}"
     run_app "sub2api" "${PROD_IMAGE_TAG:-sub2api:monitor-group-filter}" "${PROD_BIND_HOST}" "${PROD_HOST_PORT}" "data"
     ;;
+  cleanup-test)
+    load_test_env
+    cleanup_test_artifacts
+    ;;
   status)
     show_status
     ;;
   *)
-    die "usage: $0 {deps|prod|test|all|status}"
+    die "usage: $0 {deps|prod|test|all|cleanup-test|status}"
     ;;
 esac
 

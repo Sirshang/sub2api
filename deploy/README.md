@@ -153,6 +153,21 @@ Defaults:
 The PowerShell script requires a clean working tree, pushes the current branch,
 then triggers the remote release script over SSH.
 
+By default, the release flow will:
+
+- run the test container
+- verify health
+- publish prod
+- **remove the test container**
+- **remove the test image**
+- **reset `data-test/`**
+
+If you want to keep test artifacts temporarily:
+
+```powershell
+.\release-remote.ps1 -KeepTestArtifacts
+```
+
 #### Runtime directory sync
 
 To refresh runtime manifests/scripts without a full release:
