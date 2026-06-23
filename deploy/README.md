@@ -15,8 +15,14 @@ This directory contains files for deploying Sub2API on Linux servers.
 |------|-------------|
 | `docker-compose.yml` | Docker Compose configuration (named volumes) |
 | `docker-compose.local.yml` | Docker Compose configuration (local directories, easy migration) |
+| `docker-compose.test.yml` | Test container compose file (18080 by default) |
 | `docker-deploy.sh` | **One-click Docker deployment script (recommended)** |
 | `.env.example` | Docker environment variables template |
+| `.env.test.example` | Test stack host-port override template |
+| `runtime-sync.sh` | Sync tracked deploy assets into the runtime directory |
+| `runtime-stack.sh` | Runtime-safe container lifecycle script (deps / test / prod) |
+| `release-from-git.sh` | Remote one-click publish script (pull → build test → test → build prod → prod) |
+| `release-remote.ps1` | Local PowerShell release entrypoint for Codex / Windows |
 | `DOCKER.md` | Docker Hub documentation |
 | `install.sh` | One-click binary installation script |
 | `install-datamanagementd.sh` | datamanagementd 一键安装脚本 |
@@ -105,6 +111,59 @@ docker compose -f docker-compose.local.yml logs -f sub2api
 | **docker-compose.yml** | Named volumes (/var/lib/docker/volumes/) | ⚠️ Requires docker commands | Simple setup, don't need migration |
 
 **Recommendation:** Use `docker-compose.local.yml` (deployed by `docker-deploy.sh`) for easier data management and migration.
+
+### Remote Git Release: test → prod
+
+This repo also ships a runtime-safe release flow for environments where legacy
+`docker-compose` is unreliable during container recreation.
+
+#### Remote server (inside repo)
+
+```bash
+cd /root/sub2api-deploy-src
+./deploy/release-from-git.sh \
+  --git-remote origin \
+  --branch codex/monitor-group-filter \
+  --runtime-dir /www/wwwroot/sub2api-deploy
+```
+
+What it does:
+
+1. Pull latest Git code
+2. Sync tracked deploy assets into `/www/wwwroot/sub2api-deploy`
+3. Build `sub2api:monitor-group-filter-test`
+4. Start / replace test container and check `http://127.0.0.1:18080/health`
+5. Build `sub2api:monitor-group-filter`
+6. Start / replace prod container and check the prod health endpoint
+
+#### Local Windows / Codex
+
+```powershell
+cd deploy
+.\release-remote.ps1
+```
+
+Defaults:
+
+- Push remote: `zero199901`
+- Remote host: `45.207.201.139`
+- Remote repo dir: `/root/sub2api-deploy-src`
+- Runtime dir: `/www/wwwroot/sub2api-deploy`
+
+The PowerShell script requires a clean working tree, pushes the current branch,
+then triggers the remote release script over SSH.
+
+#### Runtime directory sync
+
+To refresh runtime manifests/scripts without a full release:
+
+```bash
+cd /root/sub2api-deploy-src
+./deploy/runtime-sync.sh /www/wwwroot/sub2api-deploy
+```
+
+This keeps sensitive runtime files (`.env`, runtime data directories) in place
+while refreshing tracked deployment assets.
 
 ### How Auto-Setup Works
 
