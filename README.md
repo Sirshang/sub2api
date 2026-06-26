@@ -357,6 +357,20 @@ docker compose -f docker-compose.local.yml logs -f sub2api
 
 **Recommendation:** Use `docker-compose.local.yml` (deployed by script) for easier data management.
 
+#### Sync Your Fork With Upstream
+
+If you maintain your own fork and keep custom changes on a long-lived branch, use the built-in sync helper:
+
+```bash
+# Sync main from upstream, then merge main into the current branch
+make sync-fork
+
+# Or sync a specific custom branch
+TARGET_BRANCH=codex/monitor-group-filter bash tools/sync_fork.sh
+```
+
+The script refuses to run with a dirty worktree and will stop at merge conflicts so you can resolve them manually.
+
 #### Access
 
 Open `http://YOUR_SERVER_IP:8080` in your browser.

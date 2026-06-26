@@ -264,11 +264,11 @@ psql -U sub2api -h 127.0.0.1 -d sub2api -f migration.sql
 ### Git 操作
 
 ```bash
-# 同步上游
-git fetch upstream
-git checkout main
-git merge upstream/main
-git push origin main
+# 同步上游并把 main 合入当前工作分支
+make sync-fork
+
+# 或者显式指定你的自定义分支
+TARGET_BRANCH=codex/monitor-group-filter bash tools/sync_fork.sh
 
 # 创建功能分支
 git checkout -b feature/xxx
