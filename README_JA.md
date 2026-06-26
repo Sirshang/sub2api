@@ -295,7 +295,7 @@ ADMIN_EMAIL=admin@example.com
 ADMIN_PASSWORD=your_admin_password
 
 # オプション: カスタムポート
-SERVER_PORT=8080
+SERVER_PORT=18080  # 例: 8080 が塞がれている環境では高いポートを使う
 ```
 
 **セキュアなシークレットの生成方法:**

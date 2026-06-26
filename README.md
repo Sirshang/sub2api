@@ -293,7 +293,7 @@ ADMIN_EMAIL=admin@example.com
 ADMIN_PASSWORD=your_admin_password
 
 # Optional: Custom port
-SERVER_PORT=8080
+SERVER_PORT=18080  # Example: use a higher port if 8080 is blocked
 ```
 
 **Generate secure secrets:**

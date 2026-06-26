@@ -41,6 +41,9 @@ curl -sSL https://raw.githubusercontent.com/Wei-Shaw/sub2api/main/deploy/docker-
 curl -sSL https://raw.githubusercontent.com/Wei-Shaw/sub2api/main/deploy/docker-deploy.sh -o docker-deploy.sh
 chmod +x docker-deploy.sh
 ./docker-deploy.sh
+
+# Example: if your provider blocks 8080, deploy on 18080 instead
+SERVER_PORT=18080 ./docker-deploy.sh
 ```
 
 **What the script does:**
@@ -62,7 +65,7 @@ docker compose -f docker-compose.local.yml logs -f sub2api
 docker compose -f docker-compose.local.yml logs sub2api | grep "admin password"
 
 # Access Web UI
-# http://localhost:8080
+# http://localhost:${SERVER_PORT:-8080}
 ```
 
 ### Method 2: Manual Deployment
@@ -105,6 +108,8 @@ docker compose -f docker-compose.local.yml logs -f sub2api
 | **docker-compose.yml** | Named volumes (/var/lib/docker/volumes/) | ⚠️ Requires docker commands | Simple setup, don't need migration |
 
 **Recommendation:** Use `docker-compose.local.yml` (deployed by `docker-deploy.sh`) for easier data management and migration.
+
+If your provider or platform blocks `8080`, set `SERVER_PORT` to a higher port such as `18080` before the first startup.
 
 ### How Auto-Setup Works
 
@@ -246,6 +251,25 @@ docker compose -f docker-compose.local.yml up -d
 ```
 
 Your entire deployment (configuration + data) is migrated!
+
+### Redeploy a tarball on a remote server
+
+If you deploy by copying your local worktree to a remote server, use `remote-redeploy-from-tar.sh`.
+It preserves `.env`, PostgreSQL data, Redis data, and app data across code updates.
+
+```bash
+# On the remote server
+chmod +x deploy/remote-redeploy-from-tar.sh
+
+# Default public-server port is 18080
+deploy/remote-redeploy-from-tar.sh
+
+# Or override paths / port
+SERVER_PORT=18080 \
+APP_ROOT=/opt/sub2api \
+TARBALL_PATH=/root/sub2api-worktree.tar.gz \
+deploy/remote-redeploy-from-tar.sh
+```
 
 ---
 

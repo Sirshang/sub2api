@@ -22,6 +22,8 @@ NC='\033[0m' # No Color
 
 # GitHub raw content base URL
 GITHUB_RAW_URL="https://raw.githubusercontent.com/Wei-Shaw/sub2api/main/deploy"
+DEPLOY_BIND_HOST="${BIND_HOST:-0.0.0.0}"
+DEPLOY_SERVER_PORT="${SERVER_PORT:-8080}"
 
 # Print colored message
 print_info() {
@@ -61,6 +63,11 @@ main() {
     # Check if openssl is available
     if ! command_exists openssl; then
         print_error "openssl is not installed. Please install openssl first."
+        exit 1
+    fi
+
+    if ! [[ "${DEPLOY_SERVER_PORT}" =~ ^[0-9]+$ ]]; then
+        print_error "SERVER_PORT must be numeric. Current value: ${DEPLOY_SERVER_PORT}"
         exit 1
     fi
 
@@ -111,11 +118,15 @@ main() {
     # Update .env with generated secrets (cross-platform compatible)
     if sed --version >/dev/null 2>&1; then
         # GNU sed (Linux)
+        sed -i "s/^BIND_HOST=.*/BIND_HOST=${DEPLOY_BIND_HOST}/" .env
+        sed -i "s/^SERVER_PORT=.*/SERVER_PORT=${DEPLOY_SERVER_PORT}/" .env
         sed -i "s/^JWT_SECRET=.*/JWT_SECRET=${JWT_SECRET}/" .env
         sed -i "s/^TOTP_ENCRYPTION_KEY=.*/TOTP_ENCRYPTION_KEY=${TOTP_ENCRYPTION_KEY}/" .env
         sed -i "s/^POSTGRES_PASSWORD=.*/POSTGRES_PASSWORD=${POSTGRES_PASSWORD}/" .env
     else
         # BSD sed (macOS)
+        sed -i '' "s/^BIND_HOST=.*/BIND_HOST=${DEPLOY_BIND_HOST}/" .env
+        sed -i '' "s/^SERVER_PORT=.*/SERVER_PORT=${DEPLOY_SERVER_PORT}/" .env
         sed -i '' "s/^JWT_SECRET=.*/JWT_SECRET=${JWT_SECRET}/" .env
         sed -i '' "s/^TOTP_ENCRYPTION_KEY=.*/TOTP_ENCRYPTION_KEY=${TOTP_ENCRYPTION_KEY}/" .env
         sed -i '' "s/^POSTGRES_PASSWORD=.*/POSTGRES_PASSWORD=${POSTGRES_PASSWORD}/" .env
@@ -160,10 +171,15 @@ main() {
     echo "     docker-compose logs -f sub2api"
     echo ""
     echo "  4. Access Web UI:"
-    echo "     http://localhost:8080"
+    if [ "${DEPLOY_BIND_HOST}" = "0.0.0.0" ]; then
+        echo "     http://localhost:${DEPLOY_SERVER_PORT}"
+    else
+        echo "     http://${DEPLOY_BIND_HOST}:${DEPLOY_SERVER_PORT}"
+    fi
     echo ""
     print_info "If admin password is not set in .env, it will be auto-generated."
     print_info "Check logs for the generated admin password on first startup."
+    print_info "Tip: if 8080 is blocked, rerun with SERVER_PORT=18080 ./docker-deploy.sh"
     echo ""
 }
 
