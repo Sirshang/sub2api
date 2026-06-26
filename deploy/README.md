@@ -271,6 +271,34 @@ TARBALL_PATH=/root/sub2api-worktree.tar.gz \
 deploy/remote-redeploy-from-tar.sh
 ```
 
+### Semi-automatic deploy from GitHub
+
+If you want a simpler workflow after `git push`, use `remote-redeploy-from-github.sh`.
+The server downloads the selected branch tarball from GitHub and redeploys it while preserving data.
+
+```bash
+# On the server
+chmod +x deploy/remote-redeploy-from-github.sh
+
+# Deploy your fork branch
+GITHUB_REPO=Sirshang/sub2api \
+GITHUB_BRANCH=codex/monitor-group-filter \
+SERVER_PORT=18080 \
+deploy/remote-redeploy-from-github.sh
+```
+
+For local convenience, you can trigger it from your workstation:
+
+```bash
+SSH_HOST=103.236.72.164 \
+SSH_PORT=10114 \
+SSH_USER=root \
+GITHUB_REPO=Sirshang/sub2api \
+GITHUB_BRANCH=codex/monitor-group-filter \
+SERVER_PORT=18080 \
+bash tools/deploy_server_from_github.sh
+```
+
 ---
 
 ## Gemini OAuth Configuration

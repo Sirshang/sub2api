@@ -371,6 +371,22 @@ TARGET_BRANCH=codex/monitor-group-filter bash tools/sync_fork.sh
 
 The script refuses to run with a dirty worktree and will stop at merge conflicts so you can resolve them manually.
 
+#### Semi-automatic deploy from GitHub
+
+If you prefer a GitHub-to-server flow after `git push`, use the built-in deploy helper:
+
+```bash
+SSH_HOST=103.236.72.164 \
+SSH_PORT=10114 \
+SSH_USER=root \
+GITHUB_REPO=Sirshang/sub2api \
+GITHUB_BRANCH=codex/monitor-group-filter \
+SERVER_PORT=18080 \
+make deploy-server
+```
+
+This triggers the server-side `deploy/remote-redeploy-from-github.sh` script, which downloads the selected branch tarball from GitHub and redeploys it while preserving `.env` and local data directories.
+
 #### Access
 
 Open `http://YOUR_SERVER_IP:8080` in your browser.

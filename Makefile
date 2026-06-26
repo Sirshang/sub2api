@@ -1,4 +1,4 @@
-.PHONY: build build-backend build-frontend build-datamanagementd test test-backend test-frontend test-frontend-critical test-datamanagementd secret-scan sync-fork
+.PHONY: build build-backend build-frontend build-datamanagementd test test-backend test-frontend test-frontend-critical test-datamanagementd secret-scan sync-fork deploy-server
 
 FRONTEND_CRITICAL_VITEST := \
 	src/views/auth/__tests__/LinuxDoCallbackView.spec.ts \
@@ -45,3 +45,6 @@ secret-scan:
 
 sync-fork:
 	@bash tools/sync_fork.sh
+
+deploy-server:
+	@bash tools/deploy_server_from_github.sh
