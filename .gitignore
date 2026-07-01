@@ -127,6 +127,9 @@ code-reviews/
 AGENTS.md
 backend/cmd/server/server
 deploy/docker-compose.override.yml
+deploy/new_sub2_data/
+deploy/new_sub2_postgres_data/
+deploy/new_sub2_redis_data/
 .gocache/
 vite.config.js
 docs/*
