@@ -92,7 +92,12 @@ func SecurityHeaders(cfg config.CSPConfig, getFrameSrcOrigins func() []string) g
 		}
 
 		c.Header("X-Content-Type-Options", "nosniff")
-		c.Header("X-Frame-Options", "DENY")
+		if isCustomStaticPagePath(c) {
+			c.Header("X-Frame-Options", "SAMEORIGIN")
+			finalPolicy = setDirective(finalPolicy, "frame-ancestors", "'self'")
+		} else {
+			c.Header("X-Frame-Options", "DENY")
+		}
 		c.Header("Referrer-Policy", "strict-origin-when-cross-origin")
 		if isAPIRoutePath(c) {
 			c.Next()
@@ -125,6 +130,13 @@ func isAPIRoutePath(c *gin.Context) bool {
 		strings.HasPrefix(path, "/antigravity/") ||
 		strings.HasPrefix(path, "/responses") ||
 		strings.HasPrefix(path, "/images")
+}
+
+func isCustomStaticPagePath(c *gin.Context) bool {
+	if c == nil || c.Request == nil || c.Request.URL == nil {
+		return false
+	}
+	return strings.HasPrefix(c.Request.URL.Path, "/custom-pages/")
 }
 
 // enhanceCSPPolicy 确保 CSP 策略包含 nonce 支持和支付 SDK 必需域名。
@@ -194,4 +206,25 @@ func addToDirective(policy, directive, value string) string {
 	// Insert value before the semicolon
 	insertPos := idx + endIdx
 	return policy[:insertPos] + " " + value + policy[insertPos:]
+}
+
+func setDirective(policy, directive string, values ...string) string {
+	replacement := directive
+	if len(values) > 0 {
+		replacement += " " + strings.Join(values, " ")
+	}
+
+	parts := strings.Split(policy, ";")
+	for i, part := range parts {
+		fields := strings.Fields(strings.TrimSpace(part))
+		if len(fields) > 0 && fields[0] == directive {
+			parts[i] = " " + replacement
+			return strings.TrimSpace(strings.Join(parts, ";"))
+		}
+	}
+
+	if strings.TrimSpace(policy) == "" {
+		return replacement
+	}
+	return strings.TrimSpace(policy) + "; " + replacement
 }
