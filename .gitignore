@@ -133,6 +133,7 @@ deploy/new_sub2_redis_data/
 .gocache/
 vite.config.js
 docs/*
+!docs/51aigc-new-sub2-deploy.md
 !docs/PAYMENT.md
 !docs/PAYMENT_CN.md
 !docs/ADMIN_PAYMENT_INTEGRATION_API.md
@@ -143,3 +144,9 @@ docs/*
 frontend/coverage/
 aicodex
 output/
+
+# ===================
+# Project-local private runbooks
+# ===================
+!AGENTS.md
+local/
