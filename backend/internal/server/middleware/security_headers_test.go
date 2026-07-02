@@ -150,6 +150,24 @@ func TestSecurityHeaders(t *testing.T) {
 		assert.Contains(t, csp, CloudflareInsightsDomain)
 	})
 
+	t.Run("custom_static_pages_allow_same_origin_embedding", func(t *testing.T) {
+		cfg := config.CSPConfig{
+			Enabled: true,
+			Policy:  "default-src 'self'; script-src 'self' __CSP_NONCE__; frame-ancestors 'none'",
+		}
+		middleware := SecurityHeaders(cfg, nil)
+
+		w := httptest.NewRecorder()
+		c, _ := gin.CreateTestContext(w)
+		c.Request = httptest.NewRequest(http.MethodGet, "/custom-pages/recharge.html", nil)
+
+		middleware(c)
+
+		assert.Equal(t, "SAMEORIGIN", w.Header().Get("X-Frame-Options"))
+		assert.Contains(t, w.Header().Get("Content-Security-Policy"), "frame-ancestors 'self'")
+		assert.NotContains(t, w.Header().Get("Content-Security-Policy"), "frame-ancestors 'none'")
+	})
+
 	t.Run("api_route_skips_csp_nonce_generation", func(t *testing.T) {
 		cfg := config.CSPConfig{
 			Enabled: true,

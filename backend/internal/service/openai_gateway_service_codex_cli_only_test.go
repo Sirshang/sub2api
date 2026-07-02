@@ -18,7 +18,7 @@ type stubCodexRestrictionDetector struct {
 	result CodexClientRestrictionDetectionResult
 }
 
-func (s *stubCodexRestrictionDetector) Detect(_ *gin.Context, _ *Account, _ []string) CodexClientRestrictionDetectionResult {
+func (s *stubCodexRestrictionDetector) Detect(_ *gin.Context, _ *Account, _ CodexRestrictionPolicy, _ []byte) CodexClientRestrictionDetectionResult {
 	return s.result
 }
 
@@ -52,7 +52,7 @@ func TestOpenAIGatewayService_GetCodexClientRestrictionDetector(t *testing.T) {
 		c.Request.Header.Set("User-Agent", "curl/8.0")
 		account := &Account{Platform: PlatformOpenAI, Type: AccountTypeOAuth, Extra: map[string]any{"codex_cli_only": true}}
 
-		result := got.Detect(c, account, nil)
+		result := got.Detect(c, account, CodexRestrictionPolicy{}, nil)
 		require.True(t, result.Enabled)
 		require.True(t, result.Matched)
 		require.Equal(t, CodexClientRestrictionReasonForceCodexCLI, result.Reason)
@@ -251,6 +251,29 @@ func TestIsOpenAITransientProcessingError(t *testing.T) {
 		"Missing required parameter: 'instructions'",
 		[]byte(`{"error":{"message":"Missing required parameter: 'instructions'"}}`),
 	))
+}
+
+func TestIsOpenAIContextWindowError(t *testing.T) {
+	require.True(t, isOpenAIContextWindowError(
+		"",
+		[]byte(`{"error":{"message":"Your input exceeds the context window of this model. Please adjust your input and try again.","type":"upstream_error","code":null}}`),
+	))
+	require.True(t, isOpenAIContextWindowError(
+		"maximum context length exceeded",
+		nil,
+	))
+	require.False(t, isOpenAIContextWindowError(
+		"context canceled",
+		nil,
+	))
+}
+
+func TestShouldFailoverOpenAIUpstreamResponseContextWindow502(t *testing.T) {
+	svc := &OpenAIGatewayService{}
+	body := []byte(`{"error":{"message":"Your input exceeds the context window of this model. Please adjust your input and try again.","type":"upstream_error","code":null}}`)
+
+	require.False(t, svc.shouldFailoverOpenAIUpstreamResponse(http.StatusBadGateway, "", body))
+	require.True(t, svc.shouldFailoverOpenAIUpstreamResponse(http.StatusBadGateway, "temporary upstream outage", []byte(`{"error":{"message":"temporary upstream outage"}}`)))
 }
 
 func TestOpenAIGatewayService_Forward_LogsInstructionsRequiredDetails(t *testing.T) {
