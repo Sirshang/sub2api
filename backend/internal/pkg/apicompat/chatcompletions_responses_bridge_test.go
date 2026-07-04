@@ -73,6 +73,28 @@ func TestResponsesToChatCompletionsRequest_InstructionsAndInputDeveloperRole(t *
 	assert.JSONEq(t, `"Hello"`, string(out.Messages[2].Content))
 }
 
+func TestResponsesToChatCompletionsRequest_DefaultsEmptyFunctionCallName(t *testing.T) {
+	req := &ResponsesRequest{
+		Model: "gpt-5.4",
+		Input: json.RawMessage(`[
+			{"role":"user","content":"run it"},
+			{"type":"function_call","call_id":"call_empty","name":"   ","arguments":""},
+			{"type":"function_call_output","call_id":"call_empty","output":"ok"}
+		]`),
+	}
+
+	out, err := ResponsesToChatCompletionsRequest(req)
+	require.NoError(t, err)
+	require.Len(t, out.Messages, 3)
+	require.Len(t, out.Messages[1].ToolCalls, 1)
+
+	toolCall := out.Messages[1].ToolCalls[0]
+	assert.Equal(t, "call_empty", toolCall.ID)
+	assert.Equal(t, "unknown_function", toolCall.Function.Name)
+	assert.Equal(t, "{}", toolCall.Function.Arguments)
+	assert.Equal(t, "tool", out.Messages[2].Role)
+	assert.Equal(t, "call_empty", out.Messages[2].ToolCallID)
+}
 func chatMessageRoles(messages []ChatMessage) []string {
 	roles := make([]string, 0, len(messages))
 	for _, message := range messages {
