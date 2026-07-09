@@ -1,0 +1,324 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>充值/订阅页配置</title>
+    <style>
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        background: #f4f7fb;
+        color: #0f172a;
+        font-family:
+          -apple-system,
+          BlinkMacSystemFont,
+          "Segoe UI",
+          "PingFang SC",
+          "Microsoft YaHei",
+          sans-serif;
+      }
+
+      .page {
+        max-width: 1180px;
+        margin: 0 auto;
+        padding: 28px;
+      }
+
+      .topbar {
+        position: sticky;
+        top: 0;
+        z-index: 10;
+        margin: -28px -28px 24px;
+        padding: 18px 28px;
+        background: rgba(244, 247, 251, 0.94);
+        border-bottom: 1px solid #dbe7f5;
+        backdrop-filter: blur(14px);
+      }
+
+      .topbar-inner {
+        max-width: 1180px;
+        margin: 0 auto;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 16px;
+      }
+
+      h1 {
+        margin: 0;
+        font-size: 24px;
+      }
+
+      .hint {
+        margin: 6px 0 0;
+        color: #64748b;
+        font-size: 13px;
+      }
+
+      .actions {
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+        justify-content: flex-end;
+      }
+
+      button,
+      .link-btn {
+        border: 0;
+        border-radius: 999px;
+        padding: 10px 16px;
+        background: #0f172a;
+        color: #fff;
+        font-size: 14px;
+        font-weight: 700;
+        text-decoration: none;
+        cursor: pointer;
+      }
+
+      .secondary {
+        background: #e2e8f0;
+        color: #334155;
+      }
+
+      .danger {
+        background: #fee2e2;
+        color: #b91c1c;
+      }
+
+      .grid {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr);
+        gap: 20px;
+      }
+
+      .panel {
+        background: #fff;
+        border: 1px solid #dbe7f5;
+        border-radius: 18px;
+        padding: 20px;
+        box-shadow: 0 18px 48px rgba(15, 23, 42, 0.06);
+      }
+
+      .panel h2 {
+        margin: 0 0 16px;
+        font-size: 18px;
+      }
+
+      .plan-editor {
+        border: 1px solid #e2e8f0;
+        border-radius: 14px;
+        padding: 16px;
+        margin-top: 14px;
+        background: #fbfdff;
+      }
+
+      .plan-head {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        margin-bottom: 14px;
+      }
+
+      .section-head {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        margin-bottom: 16px;
+      }
+
+      .section-head h2 {
+        margin: 0;
+      }
+
+      .mini-actions {
+        display: flex;
+        gap: 8px;
+        flex-wrap: wrap;
+        justify-content: flex-end;
+      }
+
+      .mini-btn {
+        padding: 8px 12px;
+        font-size: 12px;
+      }
+
+      .plan-head strong {
+        font-size: 15px;
+      }
+
+      .fields {
+        display: grid;
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        gap: 12px;
+      }
+
+      .feature-fields {
+        margin-top: 12px;
+        display: grid;
+        gap: 10px;
+      }
+
+      .feature-row {
+        display: grid;
+        grid-template-columns: minmax(0, 1.6fr) minmax(0, 0.8fr) minmax(0, 0.8fr);
+        gap: 10px;
+      }
+
+      .pricing-row-editor {
+        display: grid;
+        grid-template-columns: minmax(0, 1.4fr) minmax(0, 0.8fr);
+        gap: 10px;
+      }
+
+      label {
+        display: grid;
+        gap: 6px;
+        color: #475569;
+        font-size: 12px;
+        font-weight: 700;
+      }
+
+      input,
+      textarea,
+      select {
+        width: 100%;
+        border: 1px solid #cbd5e1;
+        border-radius: 10px;
+        padding: 10px 11px;
+        background: #fff;
+        color: #0f172a;
+        font: inherit;
+        font-size: 14px;
+      }
+
+      textarea {
+        min-height: 260px;
+        resize: vertical;
+        font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+        font-size: 12px;
+        line-height: 1.55;
+      }
+
+      .checkline {
+        align-self: end;
+        display: flex;
+        min-height: 41px;
+        align-items: center;
+        gap: 8px;
+        color: #334155;
+        font-size: 14px;
+      }
+
+      .checkline input {
+        width: 18px;
+        height: 18px;
+      }
+
+      .status {
+        min-height: 20px;
+        margin-top: 10px;
+        color: #0f9f59;
+        font-size: 13px;
+        font-weight: 700;
+      }
+
+      .origin-warning {
+        display: none;
+        margin: 0 0 20px;
+        border: 1px solid #fecaca;
+        border-radius: 14px;
+        padding: 14px 16px;
+        background: #fff1f2;
+        color: #b91c1c;
+        font-size: 14px;
+        font-weight: 700;
+      }
+
+      .origin-warning a {
+        color: #7f1d1d;
+      }
+
+      @media (max-width: 920px) {
+        .topbar-inner {
+          align-items: flex-start;
+          flex-direction: column;
+        }
+
+        .section-head {
+          align-items: flex-start;
+          flex-direction: column;
+        }
+
+        .actions {
+          justify-content: flex-start;
+        }
+
+        .fields,
+        .feature-row,
+        .pricing-row-editor {
+          grid-template-columns: 1fr;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="page">
+      <div class="topbar">
+        <div class="topbar-inner">
+          <div>
+            <h1>充值/订阅页配置</h1>
+            <p class="hint">只控制 custom-pages/recharge.html 的展示内容和购买跳转链接。</p>
+          </div>
+          <div class="actions">
+            <button type="button" id="save-local">保存到本机预览</button>
+            <button type="button" class="secondary" id="copy-config">复制配置代码</button>
+            <button type="button" class="danger" id="reset-local">清除本机预览</button>
+            <a class="link-btn secondary" href="./recharge.html" target="_blank" rel="noreferrer">打开展示页</a>
+          </div>
+        </div>
+      </div>
+
+      <div class="origin-warning" id="origin-warning"></div>
+
+      <div class="grid">
+        <section class="panel">
+          <div class="section-head">
+            <h2>余额充值卡片</h2>
+            <button class="mini-btn" type="button" data-action="add-balance">新增余额卡片</button>
+          </div>
+          <div id="balance-editors"></div>
+        </section>
+
+        <section class="panel">
+          <div class="section-head">
+            <h2>模型定价卡片</h2>
+            <button class="mini-btn" type="button" data-action="add-pricing">新增模型卡片</button>
+          </div>
+          <div id="pricing-editors"></div>
+        </section>
+
+        <section class="panel">
+          <div class="section-head">
+            <h2>月套餐卡片</h2>
+            <button class="mini-btn" type="button" data-action="add-monthly">新增月套餐卡片</button>
+          </div>
+          <div id="monthly-editors"></div>
+        </section>
+
+        <section class="panel">
+          <h2>导出配置</h2>
+          <textarea id="config-output" spellcheck="false"></textarea>
+          <div class="status" id="status"></div>
+        </section>
+      </div>
+    </div>
+    <script src="./recharge-config.js?v=20260701"></script>
+    <script src="./recharge-admin.js?v=20260701"></script>
+  </body>
+</html>
