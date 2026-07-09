@@ -133,7 +133,7 @@ func buildChatMessagesFromItems(messages []ChatMessage, rawItems []json.RawMessa
 				ID:   rawString(item["call_id"]),
 				Type: "function",
 				Function: ChatFunctionCall{
-					Name:      rawString(item["name"]),
+					Name:      normalizeResponsesFunctionName(rawString(item["name"])),
 					Arguments: arguments,
 				},
 			}
@@ -207,6 +207,14 @@ func buildChatMessagesFromItems(messages []ChatMessage, rawItems []json.RawMessa
 	}
 
 	return messages, nil
+}
+
+func normalizeResponsesFunctionName(name string) string {
+	name = strings.TrimSpace(name)
+	if name == "" {
+		return "unknown_function"
+	}
+	return name
 }
 
 // normalizeChatMessages is the single place that enforces the tool-call
