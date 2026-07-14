@@ -221,11 +221,34 @@
       }
 
       .status {
-        min-height: 20px;
-        margin-top: 10px;
-        color: #0f9f59;
-        font-size: 13px;
+        position: fixed;
+        top: 24px;
+        left: 50%;
+        z-index: 30;
+        max-width: min(520px, calc(100vw - 32px));
+        padding: 12px 18px;
+        border: 1px solid #86efac;
+        border-radius: 8px;
+        background: #f0fdf4;
+        color: #166534;
+        box-shadow: 0 12px 32px rgba(15, 23, 42, 0.16);
+        font-size: 14px;
         font-weight: 700;
+        opacity: 0;
+        pointer-events: none;
+        transform: translate(-50%, -12px);
+        transition: opacity 160ms ease, transform 160ms ease;
+      }
+
+      .status.visible {
+        opacity: 1;
+        transform: translate(-50%, 0);
+      }
+
+      .status.error {
+        border-color: #fca5a5;
+        background: #fef2f2;
+        color: #b91c1c;
       }
 
       @media (max-width: 920px) {
@@ -260,9 +283,7 @@
             <p class="hint">只控制 custom-pages/recharge.html 的展示内容和购买跳转链接。</p>
           </div>
           <div class="actions">
-            <button type="button" id="save-local">保存到本机预览</button>
-            <button type="button" class="secondary" id="copy-config">复制配置代码</button>
-            <button type="button" class="danger" id="reset-local">清除本机预览</button>
+            <button type="button" id="save-config">保存</button>
             <a class="link-btn secondary" href="./recharge.html" target="_blank" rel="noreferrer">打开展示页</a>
           </div>
         </div>
@@ -293,14 +314,10 @@
           <div id="monthly-editors"></div>
         </section>
 
-        <section class="panel">
-          <h2>导出配置</h2>
-          <textarea id="config-output" spellcheck="false"></textarea>
-          <div class="status" id="status"></div>
-        </section>
       </div>
     </div>
-    <script src="./recharge-config.js?v=20260701"></script>
-    <script src="./recharge-admin.js?v=20260701"></script>
+    <div class="status" id="status" role="status" aria-live="polite"></div>
+    <script src="./recharge-config.js?v=20260714"></script>
+    <script src="./recharge-admin.js?v=20260714"></script>
   </body>
 </html>

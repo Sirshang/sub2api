@@ -1,10 +1,9 @@
-const STORAGE_KEY = "rechargePageConfig";
 const defaultConfig = cloneConfig(window.RECHARGE_PAGE_CONFIG || {});
 const balanceEditors = document.querySelector("#balance-editors");
 const pricingEditors = document.querySelector("#pricing-editors");
 const monthlyEditors = document.querySelector("#monthly-editors");
-const output = document.querySelector("#config-output");
 const statusEl = document.querySelector("#status");
+const saveButton = document.querySelector("#save-config");
 
 function cloneConfig(value) {
   return JSON.parse(JSON.stringify(value));
@@ -21,24 +20,16 @@ function normalizeConfig(value) {
   };
 }
 
-function getInitialConfig() {
-  try {
-    const local = JSON.parse(localStorage.getItem(STORAGE_KEY) || "null");
-    if (local && typeof local === "object") return normalizeConfig(local);
-  } catch {
-    localStorage.removeItem(STORAGE_KEY);
-  }
-  return normalizeConfig(defaultConfig);
-}
+let config = normalizeConfig(defaultConfig);
 
-let config = getInitialConfig();
-
-function setStatus(message) {
+function setStatus(message, type = "success") {
   statusEl.textContent = message;
+  statusEl.classList.toggle("error", type === "error");
+  statusEl.classList.add("visible");
   window.clearTimeout(setStatus.timer);
   setStatus.timer = window.setTimeout(() => {
-    statusEl.textContent = "";
-  }, 2600);
+    statusEl.classList.remove("visible");
+  }, 3600);
 }
 
 function escapeAttr(value) {
@@ -98,7 +89,7 @@ function getLastOrTemplate(list, template) {
 
 function createBalancePlan() {
   const template = {
-    title: "余额 $100",
+    title: "额度$100",
     price: "￥99",
     oldPrice: "￥100",
     badge: "",
@@ -107,7 +98,7 @@ function createBalancePlan() {
     buyUrl: "",
     features: [
       { label: "低价 Claude", value: "0.25x", color: "#10b981", pillClass: "green" },
-      { label: "优质 Claude", value: "0.75x", color: "#f97316", pillClass: "orange" },
+      { label: "特价 OpenAI", value: "0.25x", color: "#f97316", pillClass: "orange" },
       { label: "优质 OpenAI", value: "0.5x", color: "#0b77e3", pillClass: "blue" },
       { label: "按实际使用量扣费", value: "", color: "#94a3b8", pillClass: "" },
       { label: "永久不过期", value: "", color: "#94a3b8", pillClass: "" },
@@ -300,17 +291,12 @@ function updateColorForFeature(path, pillClass) {
   writePath(colorPath, colorMap[pillClass] || "#94a3b8");
 }
 
-function refreshOutput() {
-  output.value = `window.RECHARGE_PAGE_CONFIG = ${JSON.stringify(config, null, 2)};`;
-}
-
 function bindEditors() {
   document.querySelectorAll("[data-path]").forEach((field) => {
     field.addEventListener("input", () => {
       const value = field.type === "checkbox" ? field.checked : field.value;
       writePath(field.dataset.path, value);
       updateColorForFeature(field.dataset.path, value);
-      refreshOutput();
     });
   });
 }
@@ -319,7 +305,6 @@ function render() {
   renderBalanceEditors();
   renderPricingEditors();
   renderMonthlyEditors();
-  refreshOutput();
   bindEditors();
 }
 
@@ -346,37 +331,39 @@ document.addEventListener("click", (event) => {
   render();
 });
 
-document.querySelector("#save-local").addEventListener("click", () => {
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(config));
-  setStatus("已保存到本机预览，刷新展示页即可看到效果。");
-});
-
-document.querySelector("#reset-local").addEventListener("click", () => {
-  localStorage.removeItem(STORAGE_KEY);
-  config = normalizeConfig(defaultConfig);
-  render();
-  setStatus("已清除本机预览配置。");
-});
-
-document.querySelector("#copy-config").addEventListener("click", async () => {
-  output.select();
-  try {
-    await navigator.clipboard.writeText(output.value);
-    setStatus("配置代码已复制。");
-  } catch {
-    document.execCommand("copy");
-    setStatus("配置代码已复制。");
+saveButton.addEventListener("click", async () => {
+  const token = localStorage.getItem("auth_token");
+  if (!token) {
+    setStatus("请先登录管理员后台，再保存充值配置。", "error");
+    return;
   }
-});
 
-output.addEventListener("change", () => {
-  const source = output.value.replace(/^window\.RECHARGE_PAGE_CONFIG\s*=\s*/, "").replace(/;\s*$/, "");
+  const originalText = saveButton.textContent;
+  saveButton.disabled = true;
+  saveButton.textContent = "保存中...";
+
   try {
-    config = normalizeConfig(JSON.parse(source));
-    render();
-    setStatus("已从导出配置区读取。");
-  } catch {
-    statusEl.textContent = "配置 JSON 格式不正确。";
+    const response = await fetch("/api/v1/admin/custom-pages/recharge-config", {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify(config),
+    });
+    const result = await response.json().catch(() => ({}));
+    if (!response.ok || result.code !== 0) {
+      if (response.status === 401 || response.status === 403) {
+        throw new Error("管理员登录已失效，请重新登录后再保存。");
+      }
+      throw new Error(result.message || "保存失败，请稍后重试。");
+    }
+    setStatus("保存成功，充值页已立即更新。");
+  } catch (error) {
+    setStatus(error.message || "保存失败，请稍后重试。", "error");
+  } finally {
+    saveButton.disabled = false;
+    saveButton.textContent = originalText;
   }
 });
 

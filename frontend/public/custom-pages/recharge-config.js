@@ -1,7 +1,7 @@
 window.RECHARGE_PAGE_CONFIG = {
   balancePlans: [
     {
-      title: "余额 $50",
+      title: "额度$50",
       price: "￥50",
       oldPrice: "",
       badge: "",
@@ -10,14 +10,14 @@ window.RECHARGE_PAGE_CONFIG = {
       buyUrl: "https://pay.ldxp.cn/item/wpf1er",
       features: [
         { label: "低价 Claude", value: "0.25x", color: "#10b981", pillClass: "green" },
-        { label: "优质 Claude", value: "0.75x", color: "#f97316", pillClass: "orange" },
+        { label: "特价 OpenAI", value: "0.25x", color: "#f97316", pillClass: "orange" },
         { label: "优质 OpenAI", value: "0.5x", color: "#0b77e3", pillClass: "blue" },
         { label: "按实际使用量扣费", value: "", color: "#94a3b8", pillClass: "" },
         { label: "永久不过期", value: "", color: "#94a3b8", pillClass: "" },
       ],
     },
     {
-      title: "余额 $100",
+      title: "额度$100",
       price: "￥99",
       oldPrice: "￥100",
       badge: "省1%",
@@ -26,15 +26,15 @@ window.RECHARGE_PAGE_CONFIG = {
       buyUrl: "https://pay.ldxp.cn/item/qsz18b",
       features: [
         { label: "低价 Claude", value: "0.25x", color: "#10b981", pillClass: "green" },
-        { label: "优质 Claude", value: "0.75x", color: "#f97316", pillClass: "orange" },
+        { label: "特价 OpenAI", value: "0.25x", color: "#f97316", pillClass: "orange" },
         { label: "优质 OpenAI", value: "0.5x", color: "#0b77e3", pillClass: "blue" },
         { label: "按实际使用量扣费", value: "", color: "#94a3b8", pillClass: "" },
         { label: "永久不过期", value: "", color: "#94a3b8", pillClass: "" },
       ],
     },
     {
-      title: "余额 $200",
-      price: "￥198",
+      title: "额度$200",
+      price: "￥188",
       oldPrice: "￥200",
       badge: "推荐",
       featured: true,
@@ -42,23 +42,7 @@ window.RECHARGE_PAGE_CONFIG = {
       buyUrl: "https://pay.ldxp.cn/item/efurss",
       features: [
         { label: "低价 Claude", value: "0.25x", color: "#10b981", pillClass: "green" },
-        { label: "优质 Claude", value: "0.75x", color: "#f97316", pillClass: "orange" },
-        { label: "优质 OpenAI", value: "0.5x", color: "#0b77e3", pillClass: "blue" },
-        { label: "按实际使用量扣费", value: "", color: "#94a3b8", pillClass: "" },
-        { label: "永久不过期", value: "", color: "#94a3b8", pillClass: "" },
-      ],
-    },
-    {
-      title: "余额 $500",
-      price: "￥490",
-      oldPrice: "￥500",
-      badge: "省2%",
-      featured: false,
-      buyText: "前往购买",
-      buyUrl: "https://pay.ldxp.cn/item/pwdj5d",
-      features: [
-        { label: "低价 Claude", value: "0.25x", color: "#10b981", pillClass: "green" },
-        { label: "优质 Claude", value: "0.75x", color: "#f97316", pillClass: "orange" },
+        { label: "特价 OpenAI", value: "0.25x", color: "#f97316", pillClass: "orange" },
         { label: "优质 OpenAI", value: "0.5x", color: "#0b77e3", pillClass: "blue" },
         { label: "按实际使用量扣费", value: "", color: "#94a3b8", pillClass: "" },
         { label: "永久不过期", value: "", color: "#94a3b8", pillClass: "" },

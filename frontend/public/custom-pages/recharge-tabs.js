@@ -1,5 +1,4 @@
 document.addEventListener("DOMContentLoaded", () => {
-  const CONFIG_STORAGE_KEY = "rechargePageConfig";
   const tabsWrap = document.querySelector(".tabs");
   const indicator = document.querySelector(".tab-indicator");
   const contactModal = document.querySelector("#contact-modal");
@@ -7,22 +6,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const closeContactModalTriggers = Array.from(document.querySelectorAll("[data-close-contact-modal]"));
 
   function getConfig() {
-    const baseConfig = window.RECHARGE_PAGE_CONFIG || {};
-    try {
-      const localConfig = JSON.parse(localStorage.getItem(CONFIG_STORAGE_KEY) || "null");
-      if (localConfig && typeof localConfig === "object") {
-        return {
-          ...baseConfig,
-          ...localConfig,
-          balancePlans: Array.isArray(localConfig.balancePlans) ? localConfig.balancePlans : baseConfig.balancePlans,
-          pricingModels: Array.isArray(localConfig.pricingModels) ? localConfig.pricingModels : baseConfig.pricingModels,
-          monthlyPlans: Array.isArray(localConfig.monthlyPlans) ? localConfig.monthlyPlans : baseConfig.monthlyPlans,
-        };
-      }
-    } catch {
-      localStorage.removeItem(CONFIG_STORAGE_KEY);
-    }
-    return baseConfig;
+    return window.RECHARGE_PAGE_CONFIG || {};
   }
 
   function escapeHtml(value) {

@@ -62,6 +62,13 @@ func TestApplyStaticAssetCacheHeaders(t *testing.T) {
 		assert.Empty(t, header.Get("Cache-Control"))
 	})
 
+	t.Run("disables_cache_for_custom_pages", func(t *testing.T) {
+		t.Parallel()
+		header := make(http.Header)
+		applyStaticAssetCacheHeaders(header, "custom-pages/recharge-config.js")
+		assert.Equal(t, customPagesCacheControl, header.Get("Cache-Control"))
+	})
+
 	t.Run("nil_header_is_noop", func(t *testing.T) {
 		t.Parallel()
 		assert.NotPanics(t, func() {

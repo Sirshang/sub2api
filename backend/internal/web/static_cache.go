@@ -11,6 +11,7 @@ import (
 // Vite emits content-hashed filenames under assets/, so long-lived immutable
 // caching is safe without relying on a reverse proxy.
 const staticAssetsCacheControl = "public, max-age=31536000, immutable"
+const customPagesCacheControl = "no-cache, no-store, must-revalidate"
 
 // isLongCacheStaticPath reports whether a cleaned URL path (no leading slash)
 // should receive long-lived Cache-Control headers. Aligned with deploy/Caddyfile.
@@ -24,7 +25,15 @@ func isLongCacheStaticPath(cleanPath string) bool {
 // applyStaticAssetCacheHeaders sets Cache-Control for long-cacheable static paths.
 // index.html / SPA routes must keep no-cache and are not handled here.
 func applyStaticAssetCacheHeaders(header http.Header, cleanPath string) {
-	if header == nil || !isLongCacheStaticPath(cleanPath) {
+	if header == nil {
+		return
+	}
+	cleanPath = strings.TrimPrefix(cleanPath, "/")
+	if strings.HasPrefix(cleanPath, "custom-pages/") {
+		header.Set("Cache-Control", customPagesCacheControl)
+		return
+	}
+	if !isLongCacheStaticPath(cleanPath) {
 		return
 	}
 	header.Set("Cache-Control", staticAssetsCacheControl)

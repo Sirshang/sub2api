@@ -260,6 +260,7 @@ func (h *PageHandler) checkImageSlugVisibility(c *gin.Context, slug string) bool
 // RegisterPageRoutes registers page routes on a router group.
 func RegisterPageRoutes(v1 *gin.RouterGroup, dataDir string, jwtAuth gin.HandlerFunc, adminAuth gin.HandlerFunc, settingService *service.SettingService) {
 	h := NewPageHandler(dataDir, settingService)
+	rechargeConfigHandler := NewRechargeConfigHandler(dataDir)
 
 	// Authenticated page content (JWT required + visibility check)
 	pages := v1.Group("/pages")
@@ -280,5 +281,12 @@ func RegisterPageRoutes(v1 *gin.RouterGroup, dataDir string, jwtAuth gin.Handler
 	adminPages.Use(middleware2.AdminComplianceGuard(settingService))
 	{
 		adminPages.GET("", h.ListPages)
+	}
+
+	adminCustomPages := v1.Group("/admin/custom-pages")
+	adminCustomPages.Use(adminAuth)
+	adminCustomPages.Use(middleware2.AdminComplianceGuard(settingService))
+	{
+		adminCustomPages.PUT("/recharge-config", rechargeConfigHandler.Update)
 	}
 }
