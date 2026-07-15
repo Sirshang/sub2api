@@ -43,8 +43,8 @@ type FrontendServer struct {
 	overrideDir string // local file override directory
 }
 
-// NewFrontendServer creates a new frontend server with settings injection
-func NewFrontendServer(settingsProvider PublicSettingsProvider) (*FrontendServer, error) {
+// NewFrontendServer creates a new frontend server with settings injection.
+func NewFrontendServer(settingsProvider PublicSettingsProvider, dataDir ...string) (*FrontendServer, error) {
 	distFS, err := fs.Sub(frontendFS, "dist")
 	if err != nil {
 		return nil, err
@@ -71,8 +71,16 @@ func NewFrontendServer(settingsProvider PublicSettingsProvider) (*FrontendServer
 		baseHTML:    baseHTML,
 		cache:       cache,
 		settings:    settingsProvider,
-		overrideDir: filepath.Join("data", "public"),
+		overrideDir: publicOverrideDir(dataDir...),
 	}, nil
+}
+
+func publicOverrideDir(dataDir ...string) string {
+	baseDir := "data"
+	if len(dataDir) > 0 && strings.TrimSpace(dataDir[0]) != "" {
+		baseDir = dataDir[0]
+	}
+	return filepath.Join(baseDir, "public")
 }
 
 // InvalidateCache invalidates the HTML cache (call when settings change)
@@ -136,9 +144,17 @@ func (s *FrontendServer) tryServeOverride(c *gin.Context, cleanPath string) bool
 	if err != nil || info.IsDir() {
 		return false
 	}
+	applyOverrideCacheHeaders(c.Writer.Header(), cleanPath)
 	c.File(filePath)
 	c.Abort()
 	return true
+}
+
+func applyOverrideCacheHeaders(header http.Header, cleanPath string) {
+	cleanPath = strings.TrimPrefix(cleanPath, "/")
+	if strings.HasPrefix(cleanPath, "custom-pages/") {
+		header.Set("Cache-Control", customPagesCacheControl)
+	}
 }
 
 func (s *FrontendServer) serveIndexHTML(c *gin.Context) {
@@ -247,13 +263,13 @@ func replaceNoncePlaceholder(html []byte, nonce string) []byte {
 
 // ServeEmbeddedFrontend returns a middleware for serving embedded frontend
 // This is the legacy function for backward compatibility when no settings provider is available
-func ServeEmbeddedFrontend() gin.HandlerFunc {
+func ServeEmbeddedFrontend(dataDir ...string) gin.HandlerFunc {
 	distFS, err := fs.Sub(frontendFS, "dist")
 	if err != nil {
 		panic("failed to get dist subdirectory: " + err.Error())
 	}
 	fileServer := http.FileServer(http.FS(distFS))
-	overrideDir := filepath.Join("data", "public")
+	overrideDir := publicOverrideDir(dataDir...)
 
 	return func(c *gin.Context) {
 		path := c.Request.URL.Path
@@ -294,6 +310,7 @@ func tryServeOverrideFile(c *gin.Context, overrideDir, cleanPath string) bool {
 	if err != nil || info.IsDir() {
 		return false
 	}
+	applyOverrideCacheHeaders(c.Writer.Header(), cleanPath)
 	c.File(filePath)
 	c.Abort()
 	return true

@@ -474,6 +474,37 @@ func TestOverrideFilesNeverReceiveImmutableCacheHeaders(t *testing.T) {
 	})
 }
 
+func TestCustomPageOverrideFilesReceiveNoCacheHeaders(t *testing.T) {
+	t.Parallel()
+
+	overrideDir := t.TempDir()
+	cleanPath := "custom-pages/recharge-config.js"
+	filePath := filepath.Join(overrideDir, cleanPath)
+	require.NoError(t, os.MkdirAll(filepath.Dir(filePath), 0o755))
+	require.NoError(t, os.WriteFile(filePath, []byte("window.RECHARGE_CONFIG={}"), 0o644))
+
+	t.Run("frontend_server_override", func(t *testing.T) {
+		t.Parallel()
+		w := httptest.NewRecorder()
+		c, _ := gin.CreateTestContext(w)
+		c.Request = httptest.NewRequest(http.MethodGet, "/"+cleanPath, nil)
+
+		server := &FrontendServer{overrideDir: overrideDir}
+		assert.True(t, server.tryServeOverride(c, cleanPath))
+		assert.Equal(t, customPagesCacheControl, w.Header().Get("Cache-Control"))
+	})
+
+	t.Run("legacy_override", func(t *testing.T) {
+		t.Parallel()
+		w := httptest.NewRecorder()
+		c, _ := gin.CreateTestContext(w)
+		c.Request = httptest.NewRequest(http.MethodGet, "/"+cleanPath, nil)
+
+		assert.True(t, tryServeOverrideFile(c, overrideDir, cleanPath))
+		assert.Equal(t, customPagesCacheControl, w.Header().Get("Cache-Control"))
+	})
+}
+
 func TestFrontendServer_Middleware(t *testing.T) {
 	t.Run("skips_api_routes", func(t *testing.T) {
 		provider := &mockSettingsProvider{
@@ -681,6 +712,18 @@ func TestNewFrontendServer(t *testing.T) {
 
 		assert.NotEmpty(t, server.baseHTML)
 		assert.Contains(t, string(server.baseHTML), "<!doctype html>")
+	})
+
+	t.Run("uses_configured_data_dir_for_public_overrides", func(t *testing.T) {
+		provider := &mockSettingsProvider{
+			settings: map[string]string{"test": "value"},
+		}
+		dataDir := t.TempDir()
+
+		server, err := NewFrontendServer(provider, dataDir)
+		require.NoError(t, err)
+
+		assert.Equal(t, filepath.Join(dataDir, "public"), server.overrideDir)
 	})
 }
 
