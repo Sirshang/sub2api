@@ -9,7 +9,14 @@ redis_data/
 
 # Environment configuration (contains sensitive information)
 .env
+.env.*
+!.env.example
+!.env.test.example
+!.env.t2.example
 .env.test
+
+# Tenant/subdomain runtime directories
+t2/
 
 # Backup files
 *.backup
