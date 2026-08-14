@@ -153,3 +153,6 @@ output/
 # ===================
 !AGENTS.md
 local/
+
+# Vitest / Vite cache at repo root
+.vite/
